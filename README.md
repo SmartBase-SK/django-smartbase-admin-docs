@@ -1,0 +1,1 @@
+# django-smartbase-admin-docs
