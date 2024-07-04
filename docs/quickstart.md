@@ -6,20 +6,11 @@
 pip install django-smartbase-admin
 ```
 
-**Install Additional Dependencies**
-
-  Install `setuptools` using pip:
-
-  ``` bash
-    pip install setuptools
-  ```
-
 Add the following packages to your `INSTALLED_APPS` in `settings.py`:
-``` python
+``` py title="settings.py"
     INSTALLED_APPS = [
         ...
         'django_smartbase_admin',
-        'psycopg2',
         'easy_thumbnails',
         'widget_tweaks',
         'nested_admin',
@@ -31,24 +22,37 @@ Add the following packages to your `INSTALLED_APPS` in `settings.py`:
 **Create Configuration File**
 
 Create a file named `sb_admin_configuration.py` at the scope of `settings.py`. Add the following configuration code:
+``` py title="sb_admin_configuration.py"
+from django_smartbase_admin.engine.configuration import SBAdminConfigurationBase, SBAdminRoleConfiguration
+from django_smartbase_admin.views.dashboard_view import SBAdminDashboardView
+from django_smartbase_admin.engine.menu_item import SBAdminMenuItem
 
-    from django_smartbase_admin.engine.configuration import SBAdminConfigurationBase, SBAdminRoleConfiguration
-    from django_smartbase_admin.views.dashboard_view import SBAdminDashboardView
-    from django_smartbase_admin.engine.menu_item import SBAdminMenuItem
+config = SBAdminRoleConfiguration(
+    default_view=SBAdminMenuItem(view_id="dashboard"),
+    menu_items=[
+        SBAdminMenuItem(view_id="dashboard", icon="All-application")
+    ],
+    registered_views=[
+        SBAdminDashboardView(widgets=[], title="Dashboard")
+    ]
+)
 
-    config = SBAdminRoleConfiguration(
-        default_view=SBAdminMenuItem(view_id="dashboard"),
-        menu_items=[
-            SBAdminMenuItem(view_id="dashboard", icon="All-application")
-        ],
-        registered_views=[
-            SBAdminDashboardView(widgets=[], title="Dashboard")
-        ]
-    )
+class SBAdminConfiguration(SBAdminConfigurationBase):
+    def get_configuration_for_roles(self, user_roles):
+        return config
+```
 
-    class SBAdminConfiguration(SBAdminConfigurationBase):
-        def get_configuration_for_roles(self, user_roles):
-            return config
+add highlighted code to your `urls.py` file:
+``` py hl_lines="1 5" title="urls.py"
+from django_smartbase_admin.admin.site import sb_admin_site
+
+urlpatterns = [
+    path('admin/', admin.site.urls),
+    path('sb-admin/', sb_admin_site.urls),
+]
+
+```
+
 
 #### Dashboard widgets
 Widgets are components that can be added to the dashboard to display information or provide functionality. The following widget types are available:
@@ -64,40 +68,40 @@ Widgets are components that can be added to the dashboard to display information
 `SBAdminChartAggregateSubWidget`: Displays an aggregate value from a model.
 
 
-```python
-    ...
-    registered_views=[
-        SBAdminDashboardView(
-            widgets=[
-                SBAdminDashboardListWidget(
-                    name="Posts",
-                    model=Post,
-                    list_display=["title", "published_date"],
-                    list_per_page=10
-                )
-            ],
-            title="Dashboard",
-        ),
-    ],
-    ...
+```py title="sb_admin_configuration.py"
+...
+registered_views=[
+    SBAdminDashboardView(
+        widgets=[
+            SBAdminDashboardListWidget(
+                name="Posts",
+                model=Post,
+                list_display=["title", "published_date"],
+                list_per_page=10
+            )
+        ],
+        title="Dashboard",
+    ),
+],
+...
 ```
 
 **Link Configuration**
 
 Add the path to your configuration file in `settings.py`:
-
-    SB_ADMIN_CONFIGURATION = "config.sbadmin_config.SBAdminConfiguration"
-    ```
+``` py title="settings.py"
+SB_ADMIN_CONFIGURATION = "config.sbadmin_config.SBAdminConfiguration"
+```
 **Add Middleware**
 
 Add the `LocaleMiddleware` to your `MIDDLEWARE` in `settings.py`:
-
-    MIDDLEWARE = [
-        ...
-        'django.middleware.locale.LocaleMiddleware',
-        ...
-    ]
-    ```
+``` py title="settings.py"
+MIDDLEWARE = [
+    ...
+    'django.middleware.locale.LocaleMiddleware',
+    ...
+]
+```
 
 ## Usage
 
