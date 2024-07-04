@@ -1,5 +1,6 @@
 # yaml-language-server: $schema=https://squidfunk.github.io/mkdocs-material/schema.json
 site_name: Django Smartbase Admin
+site_url: http://admindocs.sbdev.sk/
 repo_url: https://github.com/SmartBase-SK/django-smartbase-admin
 theme:
   name: material
