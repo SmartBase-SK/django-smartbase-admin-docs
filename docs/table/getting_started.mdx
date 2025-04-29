@@ -1,0 +1,39 @@
+---
+sidebar_position: 1
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Getting started
+The Table (list) view of an admin model can be highly customized using sbadmin_list_display.
+It builds on top of Django’s standard admin list view, while adding advanced formatting, styling, and control over how data is presented.
+This allows you to display custom fields or apply formatting to existing fields—without modifying the underlying model.
+
+### Key features:
+- Rename columns
+- Format values using Python functions (python_formatter)
+- Include related model data
+- Add badges, colors, or custom HTML
+- Exporting table to XLSX format
+- Advanced filtering
+- Saving filtered views
+- Performing bulk actions
+
+## Defining the Table / List View
+To customize the list view, you define `sbadmin_list_display` with selected fields in your admin class:
+
+<Tabs groupId="1">
+<TabItem value="code" label="Code">
+```python title="blog/sb_admin.py"
+@admin.register(Post, site=sb_admin_site)
+class PostSBAdmin(SBAdmin):
+    sbadmin_list_display = ("title", "published_date", "author")
+    list_per_page = 25  # Sets the number of items to display per page
+```
+</TabItem>
+<TabItem value="list" label="Result">
+![Post sbadmin](/img/screenshots/posts_sbadmin.png)
+</TabItem>
+
+</Tabs>
+

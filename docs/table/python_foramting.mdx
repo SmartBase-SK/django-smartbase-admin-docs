@@ -1,0 +1,61 @@
+---
+sidebar_position: 2
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Python Field Formatting
+You can use a Python function to dynamically format how a value is rendered in the table view.
+
+## Example
+
+Here's an example using a status_formatter on the Post model, to show
+visually attractive information about status of the Post:
+
+```python title="blog/sb_admin.py"
+def status_formatter(object_id, value):
+    if value:
+        label = "Active"
+        css_class = "badge-success"
+    else:
+        label = "Inactive"
+        css_class = "badge-negative"
+    return f'<span class="badge badge-simple {css_class}">{label}</span>'
+```
+
+This formatter will return a styled HTML badge, based on the active status of the object.
+
+- `object_id`: The primary key of the object being rendered.
+- `value`: The actual value of the field for that object.
+
+
+
+Here’s how this is applied in a real admin class:
+<Tabs groupId="1">
+<TabItem value="code" label="Code">
+```python title="blog/sb_admin.py"
+@admin.register(Post, site=sb_admin_site)
+class PostSBAdmin(SBAdmin):
+    list_per_page = 25  # Sets the number of items to display per page
+
+    sbadmin_list_display = (
+        "title",
+        "published_date",
+        "author",
+        SBAdminField(
+            name="active",
+            title="Status",
+            python_formatter=status_formatter,
+        ),
+    )
+```
+</TabItem>
+<TabItem value="list" label="Result">
+![Category sbadmin](/img/screenshots/field_formatting.png)
+</TabItem>
+
+</Tabs>
+
+In the above example:
+- The active field is shown as “Status”.
+- Its value is formatted into a badge using status_formatter.

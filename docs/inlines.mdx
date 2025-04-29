@@ -1,0 +1,51 @@
+---
+sidebar_position: 4
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Inlines
+
+SmartBase Admin supports inlines in a powerful and flexible way using a set of custom classes extending Django’s built-in inline functionality.
+
+Inlines allow related objects to be edited on the same page as the parent object. `django-smartbase-admin` enhances this with a polished UI,
+sortable support and tabular/stacked rendering options out of the box.
+
+## Available Inline Classes
+
+The following inline classes are available and can be used depending on your needs:
+
+### SBAdminTableInline
+<Tabs groupId="1">
+<TabItem value="code" label="Code">
+```python title="blog/sb_admin.py"
+class PostInline(SBAdminTableInline):
+    model = Post
+    verbose_name = "Post"
+```
+</TabItem>
+<TabItem value="screenshot" label="Result">
+
+![Category sbadmin](/img/screenshots/sbadmin_table_inline.png)
+
+</TabItem>
+</Tabs>
+
+### SBAdminStackedInline
+<Tabs groupId="2">
+<TabItem value="code" label="Code">
+```python title="blog/sb_admin.py"
+class PostInline(SBAdminStackedInline):
+    model = Post
+    verbose_name = "Post"
+```
+</TabItem>
+<TabItem value="screenshot" label="Result">
+
+![Category sbadmin](/img/screenshots/SBAdminStackedInline.png)
+
+</TabItem>
+</Tabs>
+
+### Manage related objects that use GenericForeignKey
+`SBAdminGenericTableInline` and `SBAdminGenericStackedInline` are same as SBAdminTableInline and SBAdminStackedInline, but Generic inlines allow you to manage related objects that use GenericForeignKey.

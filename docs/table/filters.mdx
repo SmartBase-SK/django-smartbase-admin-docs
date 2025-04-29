@@ -1,0 +1,32 @@
+---
+sidebar_position: 3
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Filters and Saved Views
+Just like Django’s list_filter, SmartBase supports adding filters based on model fields, including related fields.
+Filters are automatically displayed in the UI, and you can stack multiple filters together to narrow down your data.
+
+![Filters sbadmin](/img/screenshots/filters.png)
+
+# Saved Views
+A powerful upgrade that SmartBase Admin allows users to save filtered views with their preferred column layout, filters, and sorting.
+This is helpful when working with large datasets or recurring workflows.
+
+For example, editor can save a view for “Published posts in last 30 days”
+
+These saved views are accessible from the UI and persist across sessions, making the admin panel more user-friendly and workflow-driven.
+
+## Usage example
+
+ Apply your preffered filters using the sidebar or column filters. Click the “Save View” button in the top-right corner of the list view interface.
+![Saved view sbadmin](/img/screenshots/save_view_1.png)
+
+ A dialog will appear prompting you to enter a name for the view.
+
+![Saved view sbadmin](/img/screenshots/save_view_2.png)
+
+ Once saved, the view will appear in the list of available views, allowing you to easily switch between different filter and display configurations.
+
+![Saved view sbadmin](/img/screenshots/save_view_3.png)

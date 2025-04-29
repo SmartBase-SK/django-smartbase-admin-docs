@@ -1,0 +1,17 @@
+0000000000000000000000000000000000000000 90d93e2988601ca6b566a80b7244bf4081057819 lubos.zlatohlavek <lubos.zlatohlavek@smartbase.sk> 1744799192 +0200	clone: from gitlab.smartbase.sk:dev/django-smartbase-admin-docs.git
+90d93e2988601ca6b566a80b7244bf4081057819 90d93e2988601ca6b566a80b7244bf4081057819 lubos.zlatohlavek <lubos.zlatohlavek@smartbase.sk> 1744799260 +0200	checkout: moving from main to develop
+90d93e2988601ca6b566a80b7244bf4081057819 e1a10546149b7682281979c994c1bec5abd5843d lubos.zlatohlavek <lubos.zlatohlavek@smartbase.sk> 1744800359 +0200	commit: triv: #no-task basic project structure
+e1a10546149b7682281979c994c1bec5abd5843d 341850e8c16127d1b24d97c8f2a25db90ac82262 lubos.zlatohlavek <lubos.zlatohlavek@smartbase.sk> 1744801467 +0200	commit: triv: #no-task installation section
+341850e8c16127d1b24d97c8f2a25db90ac82262 77078a9d88292756142b711410d32d45d00f85e4 lubos.zlatohlavek <lubos.zlatohlavek@smartbase.sk> 1744810036 +0200	commit: triv: #no-task wip: integrate to your app section
+77078a9d88292756142b711410d32d45d00f85e4 675730735c731a63dfda6213fedebf0a7a057da4 lubos.zlatohlavek <lubos.zlatohlavek@smartbase.sk> 1744810299 +0200	commit: triv: #no-task wip: integrate to your app section
+675730735c731a63dfda6213fedebf0a7a057da4 5dc67957615eca9ad9285083d13f03a59c030092 lubos.zlatohlavek <lubos.zlatohlavek@smartbase.sk> 1744867201 +0200	commit: triv: #no-task wip: integrate to your app section
+5dc67957615eca9ad9285083d13f03a59c030092 78c49ad2f462f10a8638ed78579427cf2110f4bc lubos.zlatohlavek <lubos.zlatohlavek@smartbase.sk> 1744868488 +0200	commit: triv: #no-task integrate to your app section
+78c49ad2f462f10a8638ed78579427cf2110f4bc 2357c8c5f066d51ba4c0d794eb79584b83074afe lubos.zlatohlavek <lubos.zlatohlavek@smartbase.sk> 1744870610 +0200	commit: triv: #no-task inlines
+2357c8c5f066d51ba4c0d794eb79584b83074afe 4530746f92f92826e7f5d18711a29ea710bff4e0 lubos.zlatohlavek <lubos.zlatohlavek@smartbase.sk> 1744870860 +0200	commit: triv: #no-task changed menu structure
+4530746f92f92826e7f5d18711a29ea710bff4e0 6273949179405266275372592e12d34ca839cf12 lubos.zlatohlavek <lubos.zlatohlavek@smartbase.sk> 1744870990 +0200	commit: triv: #no-task changed menu structure
+6273949179405266275372592e12d34ca839cf12 3262975fc48cf85d4c951bddc9ddf519fb23b39c lubos.zlatohlavek <lubos.zlatohlavek@smartbase.sk> 1744895967 +0200	commit: triv: #no-task menu
+3262975fc48cf85d4c951bddc9ddf519fb23b39c 3aefe8061fb3b7bb91042b9987ba4056dd850332 lubos.zlatohlavek <lubos.zlatohlavek@smartbase.sk> 1745305937 +0200	commit: triv: #no-task wip: Table section
+3aefe8061fb3b7bb91042b9987ba4056dd850332 b25ee5bb90ffa3e760c49ba6fb09a71891ea8210 lubos.zlatohlavek <lubos.zlatohlavek@smartbase.sk> 1745308531 +0200	commit: triv: #no-task wip: Table section
+b25ee5bb90ffa3e760c49ba6fb09a71891ea8210 d363dd1640bb077213c1c6bbc2ab34ce503e5207 lubos.zlatohlavek <lubos.zlatohlavek@smartbase.sk> 1745308577 +0200	commit: triv: #no-task wip: Table section
+d363dd1640bb077213c1c6bbc2ab34ce503e5207 89d5696d5de1461b11637b2f1b78924e1ed3cee1 lubos.zlatohlavek <lubos.zlatohlavek@smartbase.sk> 1745910398 +0200	commit: triv: #no-task wip: small design changes
+89d5696d5de1461b11637b2f1b78924e1ed3cee1 235568aa4831585a1d20c516afa5f10bb12c71e2 lubos.zlatohlavek <lubos.zlatohlavek@smartbase.sk> 1745910603 +0200	commit: triv: #no-task wip: small design changes

@@ -1,0 +1,39 @@
+---
+sidebar_position: 3
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Menu
+This section demonstrates how to define menu items using the SBAdminRoleConfiguration class.
+
+### Defining Menu Items
+To create a custom menu, define a list of SBAdminMenuItem instances and pass them to SBAdminRoleConfiguration.
+
+```python title="sb_admin_configuration.py"
+config = SBAdminRoleConfiguration(
+    default_view=SBAdminMenuItem(view_id="dashboard"),
+    menu_items=[
+        SBAdminMenuItem(view_id="dashboard", icon="All-application"),
+        SBAdminMenuItem(view_id="blog_category", icon="List-checkbox", label="Categories"),
+        SBAdminMenuItem(view_id="blog_post", sub_items=[], icon="View-grid-list"),
+        SBAdminMenuItem(view_id="blog_author", icon="People-top-card")
+        SBAdminMenuItem(
+                label=_("Main item"),
+                icon="List-checkbox",
+                sub_items=[
+                    SBAdminMenuItem(view_id="sub_view_1"),
+                    SBAdminMenuItem(view_id="sub_view_2"),
+                ],
+            ),
+    ],
+    registered_views=[...],
+)
+```
+
+Each `SBAdminMenuItem` accepts the following key parameters:
+
+- `view_id`: Unique identifier of the view this item links to.
+- `icon`: The icon name.
+- `label` (optional): Overrides the default label.
+- `sub_items` (optional): A list of nested SBAdminMenuItem objects, supporting menu nesting.
