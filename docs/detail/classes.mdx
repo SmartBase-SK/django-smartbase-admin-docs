@@ -1,0 +1,50 @@
+---
+title: Fieldset Layout Classes
+sidebar_position: 3
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+### Fieldset Layout Classes
+SmartBase Admin supports additional customization of fieldset layout in detail views using the classes option.
+
+Django SmatBase Admin currently supports one class: `DETAIL_STRUCTURE_RIGHT_CLASS`.
+
+This class aligns the given fieldset to the right panel in the detail view layout (which typically has two columns: left and right).
+It is useful for grouping meta fields, status fields, or supplementary info away from the main form content.
+
+## 💡Example: Defining class for `Base setting` fieldset
+<Tabs groupId="2">
+<TabItem value="code" label="Code">
+
+```python title="catalog/sb_admin.py"
+@admin.register(Product, site=sb_admin_site)
+class ProductSBAdmin(SBAdmin):
+    fieldsets = [
+        (
+            "Base settings",
+            {
+                "classes": [DETAIL_STRUCTURE_RIGHT_CLASS], # Fieldset Layout class
+                "fields": [
+                    "is_active",
+                    "slug",
+                    "sku",
+                    "categories",
+                    "manufacturer",
+                ],
+            },
+        ),
+    ]
+
+    #... other fields
+```
+
+</TabItem>
+<TabItem value="screenshot" label="Result">
+
+![Category sbadmin](/img/screenshots/right_class.png)
+
+</TabItem>
+
+</Tabs>
+

@@ -1,5 +1,5 @@
 ---
-title: Integrating to your Django App
+title: Integrate into Your Django App
 sidebar_position: 2
 ---
 import Tabs from '@theme/Tabs';
@@ -35,9 +35,11 @@ class ProductImageInline(SBAdminTableInline):
 You can learn more about inlines and different inline types in [🔗 Inlines section](/docs/inlines).
 
 
-### Product admin
+### 💡Example #1: Product admin
+
 <Tabs groupId="1">
 <TabItem value="code" label="Code">
+
 ```python title="catalog/sb_admin.py"
 @admin.register(Product, site=sb_admin_site)
 class ProductSBAdmin(SBAdmin):
@@ -46,8 +48,8 @@ class ProductSBAdmin(SBAdmin):
     sbadmin_list_display = (
         "name",
         "sku",
-        SBAdminField(name="price", title=_("Price")),
-        SBAdminField(name="is_active", title=_("Active")),
+        SBAdminField(name="price", title="Price"),
+        SBAdminField(name="is_active", title="Active"),
         "manufacturer",
     )
     search_fields = ["name", "sku"]
@@ -64,9 +66,9 @@ class ProductSBAdmin(SBAdmin):
             },
         ),
         (
-            _("Base settings"),
+            "Base settings",
             {
-                "classes": [DETAIL_STRUCTURE_RIGHT_CLASS],
+                "classes": [DETAIL_STRUCTURE_RIGHT_CLASS], # Fieldset Layout class
                 "fields": [
                     "is_active",
                     "slug",
@@ -78,17 +80,21 @@ class ProductSBAdmin(SBAdmin):
         ),
     ]
 ```
-</TabItem> 
+</TabItem>
 <TabItem value="list" label="Result - List">
+
 ![Category sbadmin](/img/screenshots/product_list.png)
-</TabItem> 
+
+</TabItem>
 <TabItem value="detail" label="Result - Detail">
+
 ![Category sbadmin](/img/screenshots/product_detail.png)
-</TabItem> 
+
+</TabItem>
 </Tabs>
 
-### Category admin
-<Tabs groupId="2">
+### 💡Example #2: Category admin
+<Tabs groupId="3">
 <TabItem value="code" label="Code">
 ```python title="catalog/sb_admin.py"
 @admin.register(Category, site=sb_admin_site)
@@ -106,17 +112,17 @@ class CategorySBAdmin(SBAdmin):
         )
     ]
 ```
-</TabItem> 
+</TabItem>
 <TabItem value="screenshot" label="Result - List">
 ![Category sbadmin](/img/screenshots/category_list.png)
-</TabItem> 
+</TabItem>
 <TabItem value="detail" label="Result - Detail">
 ![Category sbadmin](/img/screenshots/category_detail.png)
-</TabItem> 
+</TabItem>
 </Tabs>
 
-### Manufacturer admin
-<Tabs groupId="3">
+### 💡Example #3: Manufacturer admin
+<Tabs groupId="4">
 <TabItem value="code" label="Code">
 ```python title="catalog/sb_admin.py"
 @admin.register(Manufacturer, site=sb_admin_site)
@@ -133,11 +139,11 @@ class ManufacturerSBAdmin(SBAdmin):
         )
     ]
 ```
-</TabItem> 
+</TabItem>
 <TabItem value="screenshot" label="Result - List">
 ![Category sbadmin](/img/screenshots/manufacturer_list.png)
-</TabItem> 
+</TabItem>
 <TabItem value="detail" label="Result - Detail">
 ![Category sbadmin](/img/screenshots/manufacturer_detail.png)
-</TabItem> 
+</TabItem>
 </Tabs>
