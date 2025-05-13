@@ -18,10 +18,11 @@ The following inline classes are available and can be used depending on your nee
 ### SBAdminTableInline
 <Tabs groupId="1">
 <TabItem value="code" label="Code">
-```python title="blog/sb_admin.py"
-class PostInline(SBAdminTableInline):
-    model = Post
-    verbose_name = "Post"
+```python title="catalog/sb_admin.py"
+class ProductImageInline(SBAdminTableInline):
+    model = ProductImage
+    fields = ("image", "alt_text")
+    extra = 1
 ```
 </TabItem>
 <TabItem value="screenshot" label="Result">
@@ -34,10 +35,11 @@ class PostInline(SBAdminTableInline):
 ### SBAdminStackedInline
 <Tabs groupId="2">
 <TabItem value="code" label="Code">
-```python title="blog/sb_admin.py"
-class PostInline(SBAdminStackedInline):
-    model = Post
-    verbose_name = "Post"
+```python title="catalog/sb_admin.py"
+class ProductImageInline(SBAdminStackedInline):
+    model = ProductImage
+    fields = ("image", "alt_text")
+    extra = 1
 ```
 </TabItem>
 <TabItem value="screenshot" label="Result">

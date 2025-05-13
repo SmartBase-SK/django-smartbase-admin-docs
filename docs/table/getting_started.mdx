@@ -24,15 +24,23 @@ To customize the list view, you define `sbadmin_list_display` with selected fiel
 
 <Tabs groupId="1">
 <TabItem value="code" label="Code">
-```python title="blog/sb_admin.py"
-@admin.register(Post, site=sb_admin_site)
-class PostSBAdmin(SBAdmin):
-    sbadmin_list_display = ("title", "published_date", "author")
+```python title="catalog/sb_admin.py"
+@admin.register(Product, site=sb_admin_site)
+class ProductSBAdmin(SBAdmin):
+    model = Product
+    inlines = [ProductImageInline]
+    sbadmin_list_display = (
+        "name",
+        "sku",
+        SBAdminField(name="price", title=_("Price")),
+        SBAdminField(name="is_active", title=_("Active")),
+        "manufacturer",
+    )
     list_per_page = 25  # Sets the number of items to display per page
 ```
 </TabItem>
 <TabItem value="list" label="Result">
-![Post sbadmin](/img/screenshots/posts_sbadmin.png)
+![Post sbadmin](/img/screenshots/product_list.png)
 </TabItem>
 
 </Tabs>
