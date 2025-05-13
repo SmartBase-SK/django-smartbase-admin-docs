@@ -1,0 +1,107 @@
+---
+sidebar_position: 6
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Dashboard
+SmartBase Admin supports dashboard views that can include charts, lists, and aggregate widgets for analytical and operational insight.
+You can fully customize and extend dashboards to fit your use case.
+
+![Dashboard](/img/screenshots/dashboard.png)
+
+## 🛠 How It Works
+
+A dashboard is registered as an `SBAdminDashboardView`, which can contain one or more widgets like:
+
+- `SBAdminDashboardLineChartWidgetByDate` – for time-series charts
+
+- `SBAdminDashboardListWidget` – for paginated tabular views
+
+- `SBAdminChartAggregateSubWidget` – for statistics / aggregations displayed above charts
+
+## 💡Example #1: Chart Widget
+This widget creates a line chart of total_price grouped by month (or other resolution), with sub-widgets for total turnover and count.
+
+<Tabs groupId="1">
+<TabItem value="code" label="Code">
+```python title="sb_admin_configuration.py"
+...
+from django_smartbase_admin.dashboard.chart_widgets import (
+    SBAdminDashboardLineChartWidgetByDate,
+    SBAdminChartAggregateSubWidget,
+)
+
+# Custom formatting for subwidget
+def format_total_price(sub_widget, request, value):
+    return f"{value} €"
+
+class PurchaseChartWidget(SBAdminDashboardLineChartWidgetByDate):
+    name = "Turnover"
+    model = Purchase
+    date_annotate_field = "created_at" # Field with date
+    date_resolutions = SBAdminDashboardLineChartWidgetByDate.DateResolutionsOptions
+    sub_widgets = [
+        SBAdminChartAggregateSubWidget(
+            title="Total turnover",
+            aggregate=Sum("total_price"), # Aggregation will be used in chart as Y axis aggregation
+            python_formatter=format_total_price
+        ),
+        SBAdminChartAggregateSubWidget(
+            title="Purchase count",
+            aggregate=Count("id"),
+        ),
+    ]
+```
+</TabItem>
+<TabItem value="list" label="Result">
+![Category sbadmin](/img/screenshots/dashboard_chart_widget.png)
+</TabItem>
+</Tabs>
+
+
+## 💡 Example #2: List Widget
+This widget shows a paginated table of the latest purchases.
+
+<Tabs groupId="2">
+<TabItem value="code" label="Code">
+```python title="sb_admin_configuration.py"
+from django_smartbase_admin.dashboard.list_widgets import SBAdminDashboardListWidget
+
+class PurchaseDashboardListWidget(SBAdminDashboardListWidget):
+    ordering = ["-created_at"]
+    name = "Latest Purchases"
+    model = Purchase
+    list_display = ["created_at", "customer_name", "total_price"]
+    list_per_page = 10
+```
+</TabItem>
+<TabItem value="list" label="Result">
+![Category sbadmin](/img/screenshots/dashboard_list_widget.png)
+</TabItem>
+</Tabs>
+
+
+## Register the Dashboard
+This configures the dashboard in the left navigation and sets it as the default view.
+
+```python title="sb_admin_configuration.py"
+
+from django_smartbase_admin.engine.views import SBAdminDashboardView
+from django_smartbase_admin.engine.menu import SBAdminMenuItem
+from django_smartbase_admin.configuration import SBAdminRoleConfiguration
+
+config = SBAdminRoleConfiguration(
+    default_view=SBAdminMenuItem(view_id="dashboard"),
+    menu_items=[...], # Your menu items
+    registered_views=[
+        SBAdminDashboardView(
+            widgets=[
+                PurchaseChartWidget(settings=[]),
+                PurchaseDashboardListWidget(),
+            ],
+            title="Dashboard"
+        ),
+    ],
+)
+```
