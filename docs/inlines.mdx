@@ -51,3 +51,56 @@ class ProductImageInline(SBAdminStackedInline):
 
 ### Manage related objects that use GenericForeignKey
 `SBAdminGenericTableInline` and `SBAdminGenericStackedInline` are same as SBAdminTableInline and SBAdminStackedInline, but Generic inlines allow you to manage related objects that use GenericForeignKey.
+
+## Fake inlines
+
+### SBAdmin Fake Inlines (SBAdminFakeInlineMixin)
+SBAdminFakeInlineMixin is used to create inlines that are dynamically filtered — without needing a real ForeignKey relationship in the database. This is useful when you want to show related data based on some logic (e.g. "products from the same manufacturer") but don’t want to (or can't) define a hard model relation.
+
+These inlines are rendered like standard inlines but do not impact database schema.
+#### 🛠 How it works
+- Define inline which extending `SBAdminFakeInlineMixin`
+- For inline, define `filter_fake_inline_identifier_by_parent_instance(self, inline_queryset, parent_instance)`. This controls what queryset will be shown in the inline, based on the parent instance.
+#### 💡 Example
+This example showcases a fake inline for a Product admin page that lists other products from the same manufacturer.
+```python title="catalog/sb_admin.py"
+class ProductSameManufacturerInline(SBAdminFakeInlineMixin, SBAdminTableInline):
+    model = Product
+    fields = ["name", "is_current_product"]
+    readonly_fields = ["name", "is_current_product"]
+    can_delete = False
+    verbose_name = "Product from the same manufacturer"
+    verbose_name_plural = "Products from the same manufacturer"
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def filter_fake_inline_identifier_by_parent_instance(self, inline_queryset, parent_instance):
+        return inline_queryset.filter(manufacturer=parent_instance.manufacturer)
+
+    @admin.display(description=_("Current product"))
+    def is_current_product(self, obj):
+        if obj.pk == self.parent_instance.pk:
+            return mark_safe('<svg class="w-20 h-20 text-success"><use xlink:href="#Check"></use></svg>')
+        return ""
+```
+
+Admin usage
+<Tabs groupId="1">
+<TabItem value="code" label="Code">
+```python title="catalog/sb_admin.py"
+@admin.register(Product, site=sb_admin_site)
+class ProductSBAdmin(SBAdmin):
+    inlines = [ProductImageInline]
+    sbadmin_fake_inlines = [ProductSameManufacturerInline]
+    ...
+```
+</TabItem>
+<TabItem value="list" label="Result">
+![Category sbadmin](/img/screenshots/fake_inline.png)
+</TabItem>
+
+</Tabs>
