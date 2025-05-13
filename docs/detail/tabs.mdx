@@ -1,0 +1,59 @@
+---
+title: Detail View Tabs
+sidebar_position: 4
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+### Detail View Tabs
+
+SmartBase Admin allows you to organize fieldsets and inlines into tabs using the sbadmin_tabs configuration
+
+The sbadmin_tabs attribute is a dictionary where:
+- Keys are tab titles (strings),
+- Values are lists of Fieldset titles (strings, must match the first element of a fieldset tuple), or Inline classes (e.g., ProductImageInline).
+
+## 💡Example: Creating 2 tabs view
+<Tabs groupId="2">
+<TabItem value="code" label="Code">
+
+```python title="catalog/sb_admin.py"
+@admin.register(Product, site=sb_admin_site)
+class ProductSBAdmin(SBAdmin):
+    model = Product
+    inlines = [ProductImageInline]
+    fieldsets = [
+        (
+            "Appearance",
+            {
+                "fields": ["name", "description", "price"]
+            },
+        ),
+        (
+            "Base settings",
+            {
+                "classes": [DETAIL_STRUCTURE_RIGHT_CLASS],
+                "fields": ["is_active", "slug", "sku", "categories", "manufacturer"],
+            },
+        ),
+    ]
+
+    sbadmin_tabs = {
+        "General": [
+            "Appearance",         # Refers to the fieldset titled "Appearance"
+            "Base settings",      # Refers to the fieldset titled "Base settings"
+        ],
+        "Media": [
+            ProductImageInline,   # Refers to an inline model admin class
+        ],
+    }
+```
+
+</TabItem>
+<TabItem value="screenshot" label="Result">
+
+![Category sbadmin](/img/screenshots/tabs.png)
+
+</TabItem>
+
+</Tabs>
