@@ -8,7 +8,7 @@ import TabItem from '@theme/TabItem';
 
 # Integrate SmartBase Admin into Your Django App
 
-This page demonstrates how to set up `django-smartbase-admin` with models in your Django app. We will show configuration and show the result using actual model examples: `Post`, `Author`, and `Category`.
+This page demonstrates how to set up `django-smartbase-admin` with models in your Django app. We will show configuration and show the result using actual model examples: `Category`, `Manufacturer`, and `Post`.
 
 SmartBase Admin allows for customizable admin panels, inline relationships, and clean UI navigation — all defined in a structured `sb_admin.py` file.
 
@@ -16,7 +16,7 @@ SmartBase Admin allows for customizable admin panels, inline relationships, and 
 
 ## Step 1: Create `sb_admin.py`
 
-In your app (e.g. `blog/`), create a file named `sb_admin.py`.
+In your app (e.g. `catalog/`), create a file named `sb_admin.py`.
 This file is used to **register your models** with the SmartBase admin and define how they appear in the UI.
 
 ---
