@@ -25,84 +25,119 @@ This file is used to **register your models** with the SmartBase admin and defin
 
 ### Define inlines
 
-```python title="blog/sb_admin.py"
-class CategoryInline(SBAdminTableInline):
-    model = Post.categories.through
-    verbose_name = "Category"
-    verbose_name_plural = "Categories"
-
-class PostInline(SBAdminTableInline):
-    model = Post
-    verbose_name = "Post"
+```python title="catalog/sb_admin.py"
+class ProductImageInline(SBAdminTableInline):
+    model = ProductImage
+    fields = ("image", "alt_text")
+    extra = 1
 ```
 
 You can learn more about inlines and different inline types in [🔗 Inlines section](/docs/inlines).
 
 
-### Post admin
+### Product admin
 <Tabs groupId="1">
 <TabItem value="code" label="Code">
-```python title="blog/sb_admin.py"
-@admin.register(Post, site=sb_admin_site)
-class PostSBAdmin(SBAdmin):
-    list_per_page = 25  # Sets the number of items to display per page
-    sbadmin_list_display = ("title", "published_date", "author")
-    sbadmin_fieldsets = [
-        (None, {
-            "fields": ["title", "content", "author"]
-        })
+```python title="catalog/sb_admin.py"
+@admin.register(Product, site=sb_admin_site)
+class ProductSBAdmin(SBAdmin):
+    model = Product
+    inlines = [ProductImageInline]
+    sbadmin_list_display = (
+        "name",
+        "sku",
+        SBAdminField(name="price", title=_("Price")),
+        SBAdminField(name="is_active", title=_("Active")),
+        "manufacturer",
+    )
+    search_fields = ["name", "sku"]
+    list_filter = ["is_active"]
+    fieldsets = [
+        (
+            "Appearance",
+            {
+                "fields": [
+                    "name",
+                    "description",
+                    "price",
+                ]
+            },
+        ),
+        (
+            _("Base settings"),
+            {
+                "classes": [DETAIL_STRUCTURE_RIGHT_CLASS],
+                "fields": [
+                    "is_active",
+                    "slug",
+                    "sku",
+                    "categories",
+                    "manufacturer",
+                ],
+            },
+        ),
     ]
-    inlines = [CategoryInline]
 ```
 </TabItem> 
 <TabItem value="list" label="Result - List">
-![Category sbadmin](/img/screenshots/posts_sbadmin.png)
+![Category sbadmin](/img/screenshots/product_list.png)
 </TabItem> 
 <TabItem value="detail" label="Result - Detail">
-![Category sbadmin](/img/screenshots/post_detail_sbadmin.png)
-</TabItem> 
-</Tabs>
-
-### Author admin
-<Tabs groupId="2">
-<TabItem value="code" label="Code">
-```python title="blog/sb_admin.py"
-@admin.register(Author, site=sb_admin_site)
-class AuthorSBAdmin(SBAdmin):
-    sbadmin_list_display = ("name",)
-    sbadmin_fieldsets = [
-        (None, {
-            "fields": ["name", "bio"]
-        })
-    ]
-    inlines = [PostInline]
-```
-</TabItem> 
-<TabItem value="screenshot" label="Result - List">
-![Category sbadmin](/img/screenshots/authors_sbadmin.png)
-</TabItem> 
-<TabItem value="detail" label="Result - Detail">
-![Category sbadmin](/img/screenshots/author_detail_sbadmin.png)
+![Category sbadmin](/img/screenshots/product_detail.png)
 </TabItem> 
 </Tabs>
 
 ### Category admin
-<Tabs groupId="3">
+<Tabs groupId="2">
 <TabItem value="code" label="Code">
-```python title="blog/sb_admin.py"
+```python title="catalog/sb_admin.py"
 @admin.register(Category, site=sb_admin_site)
 class CategorySBAdmin(SBAdmin):
-    sbadmin_list_display = ("name",)
-    sbadmin_fieldsets = [
-        (None, {
-            "fields": ["name"]
-        })
+    model = Category
+    sbadmin_list_display = ("name", "slug", "parent")
+    search_fields = ["name"]
+    ordering = ["name"]
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": ["name", "slug", "image", "parent"]
+            },
+        )
     ]
 ```
 </TabItem> 
 <TabItem value="screenshot" label="Result - List">
+![Category sbadmin](/img/screenshots/category_list.png)
+</TabItem> 
+<TabItem value="detail" label="Result - Detail">
+![Category sbadmin](/img/screenshots/category_detail.png)
+</TabItem> 
+</Tabs>
 
-![Category sbadmin](/img/screenshots/category_sbadmin.png)
-
+### Manufacturer admin
+<Tabs groupId="3">
+<TabItem value="code" label="Code">
+```python title="catalog/sb_admin.py"
+@admin.register(Manufacturer, site=sb_admin_site)
+class ManufacturerSBAdmin(SBAdmin):
+    model = Manufacturer
+    sbadmin_list_display = ("name",)
+    search_fields = ["name"]
+    fieldsets = [
+        (
+            None,
+            {
+                "fields": ["name", "logo"]
+            },
+        )
+    ]
+```
+</TabItem> 
+<TabItem value="screenshot" label="Result - List">
+![Category sbadmin](/img/screenshots/manufacturer_list.png)
+</TabItem> 
+<TabItem value="detail" label="Result - Detail">
+![Category sbadmin](/img/screenshots/manufacturer_detail.png)
 </TabItem> 
 </Tabs>

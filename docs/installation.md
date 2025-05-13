@@ -21,15 +21,9 @@ Ensure that django-smartbase-admin and its dependencies are included in your Dja
 INSTALLED_APPS = [
     # other apps
     "django_smartbase_admin",
-    "psycopg2",
     "easy_thumbnails",
     "widget_tweaks",
 ]
-```
-
-Additionally, install setuptools if not already available:
-```bash
-pip install setuptools
 ```
 
 ## 2. Add Admin URL Configuration

@@ -10,20 +10,18 @@ You can use a Python function to dynamically format how a value is rendered in t
 ## Example
 
 Here's an example using a status_formatter on the Post model, to show
-visually attractive information about status of the Post:
+visually different information about status of the Product:
 
-```python title="blog/sb_admin.py"
+```python title="catalog/sb_admin.py"
 def status_formatter(object_id, value):
     if value:
-        label = "Active"
-        css_class = "badge-success"
+        label = "✅"
     else:
-        label = "Inactive"
-        css_class = "badge-negative"
-    return f'<span class="badge badge-simple {css_class}">{label}</span>'
+        label = "❌"
+    return f'<span>{label}</span>'
 ```
 
-This formatter will return a styled HTML badge, based on the active status of the object.
+This formatter will return a ascii icon, based on the active status of the object.
 
 - `object_id`: The primary key of the object being rendered.
 - `value`: The actual value of the field for that object.
@@ -33,21 +31,19 @@ This formatter will return a styled HTML badge, based on the active status of th
 Here’s how this is applied in a real admin class:
 <Tabs groupId="1">
 <TabItem value="code" label="Code">
-```python title="blog/sb_admin.py"
-@admin.register(Post, site=sb_admin_site)
-class PostSBAdmin(SBAdmin):
-    list_per_page = 25  # Sets the number of items to display per page
-
+```python title="catalog/sb_admin.py"
+@admin.register(Product, site=sb_admin_site)
+class ProductSBAdmin(SBAdmin):
+    model = Product
+    inlines = [ProductImageInline]
     sbadmin_list_display = (
-        "title",
-        "published_date",
-        "author",
-        SBAdminField(
-            name="active",
-            title="Status",
-            python_formatter=status_formatter,
-        ),
+        "name",
+        "sku",
+        SBAdminField(name="price", title=_("Price")),
+        SBAdminField(name="is_active", title=_("Active"), python_formatter=status_formatter),
+        "manufacturer",
     )
+    ...
 ```
 </TabItem>
 <TabItem value="list" label="Result">
@@ -55,7 +51,3 @@ class PostSBAdmin(SBAdmin):
 </TabItem>
 
 </Tabs>
-
-In the above example:
-- The active field is shown as “Status”.
-- Its value is formatted into a badge using status_formatter.
