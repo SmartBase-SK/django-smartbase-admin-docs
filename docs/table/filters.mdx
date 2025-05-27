@@ -30,3 +30,30 @@ These saved views are accessible from the UI and persist across sessions, making
  Once saved, the view will appear in the list of available views, allowing you to easily switch between different filter and display configurations.
 
 ![Saved view sbadmin](/img/screenshots/save_view_3.png)
+
+# Predefined filtered views
+SmartBase Admin allows you to define custom filtered views directly in your admin class using the sbadmin_list_view_config attribute. These views are especially useful for frequently used filter combinations, allowing quick access from the UI.
+## 💡Usage example
+Here's an example of how to define a predefined view that shows only inactive products:
+<Tabs groupId="1">
+<TabItem value="code" label="Code">
+```python title="catalog/sb_admin.py"
+@admin.register(Product, site=sb_admin_site)
+class ProductSBAdmin(SBAdmin):
+    ...
+    sbadmin_list_view_config = [
+        {
+            "name": _("Inactive"),
+            "url_params": {
+                "filterData": {"is_active": False}
+            },
+        }
+    ]
+    ...
+```
+</TabItem>
+<TabItem value="list" label="Result">
+![Category sbadmin](/img/screenshots/predefined_filter.png)
+</TabItem>
+
+</Tabs>
