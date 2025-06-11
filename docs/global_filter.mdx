@@ -1,0 +1,95 @@
+---
+sidebar_position: 4
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Global filter
+
+SmartBase Admin supports **Global Filters**, which allow users to apply filtering across all views (e.g., dashboards, lists) in the admin UI. These filters appear in the sidebar and affect queryset evaluation automatically.
+
+In the example below, a global **domain selector** is implemented. This allows switching between data scopes like `www.domain1.com`, `www.domain2.com`, or “All domains”.
+
+![Global filter](/img/screenshots/global_filter.png)
+
+
+---
+
+### 🛠 How It Works
+
+The global filter form is defined using a standard Django form. Django SmartBase Admin automatically renders it in the sidebar and handles session-based storage for the selected values.
+
+---
+
+### 💡 Example: Domain Filter
+
+#### 1. Define the Global Filter Form
+
+```python title="sb_admin_configuration.py"
+from django import forms
+from django_smartbase_admin.admin.widgets import SBAdminRadioWidget
+from project.catalog.models import Domain
+
+class GlobalFilterForm(forms.Form):
+    include_all_values_for_empty_fields = ["domain"]
+    domain = forms.ModelChoiceField(
+        queryset=Domain.objects.all(),
+        required=False,
+        blank=True,
+        widget=SBAdminRadioWidget(attrs={"id": "DOMAIN_FILTER"}),
+        empty_label="All domains",
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+
+        self.fields["domain"].label_from_instance = self.label
+
+    @staticmethod
+    def label(obj):
+        return obj.name
+
+```
+
+- `include_all_values_for_empty_fields`: Ensures that all values are included even if no selection is made.
+- `SBAdminRadioWidget`: Displays the filter as a radio selection in the sidebar.
+
+Selections are automatically stored in the session and persist across page changes.
+
+#### 2. Hook the Filter into Configuration
+Assign the global filter form to your base configuration:
+
+```python title="sb_admin_configuration.py"
+class SBAdminConfiguration(SBAdminConfigurationBase):
+    global_filter_form = GlobalFilterForm
+```
+
+#### 3. Apply Filter in Querysets
+Override `restrict_queryset()` to apply the global filter to domain-scoped models.
+
+```python title="sb_admin_configuration.py"
+from django_smartbase_admin.engine.const import GLOBAL_FILTER_DATA_KEY
+
+class SBAdminConfiguration(SBAdminConfigurationBase):
+    global_filter_form = GlobalFilterForm
+
+    def restrict_queryset(
+        self,
+        qs,
+        model,
+        request,
+        request_data,
+        global_filter=True,
+        global_filter_data_map=None,
+    ):
+        qs = super().restrict_queryset(qs, model, request, request_data, global_filter, global_filter_data_map)
+        global_filter_map = request.session.get(GLOBAL_FILTER_DATA_KEY)
+
+        if global_filter_map:
+            domain = global_filter_map.get("domain")
+            if issubclass(model, BaseDomainModel) and domain: # BaseDomainModel contains domain FK
+                qs = qs.filter(domain_id=domain)
+        return qs
+```
+This ensures that only the data belonging to the selected domain is displayed in dashboards and lists.
+

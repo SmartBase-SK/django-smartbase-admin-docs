@@ -14,7 +14,7 @@ The Tree Widget is a powerful UI component used to visualize and interact with h
 This guide walks you through setting up a Tree Widget for a hierarchical model using `treebeard.MP_Node`, such as your `Category` model.
 
 ---
-##  Prerequisites: Category Model
+###  Prerequisites: Category Model
 
 Your `Category` model must inherit from `MP_Node` and define `path`, which is used by `treebeard`.
 
@@ -38,7 +38,7 @@ class Category(BaseDomainModel, MP_Node):
         verbose_name_plural = "Categories"
 ```
 
-## 🛠️ Step-by-Step Setup
+### 🛠️ Step-by-Step Setup
 
 #### 1. Define a Tree Widget
 
@@ -85,7 +85,7 @@ class CategorySBAdmin(SBAdmin):
         return extra_context
 ```
 
-### (Optional) Use Tree Selector in Inlines
+### Use Tree Selector in Inlines
 Allow users to select categories via an interactive tree in a form or inline
 ![TreeWidget sbadmin](/img/screenshots/tree_widget_inline.png)
 
@@ -109,7 +109,6 @@ class ProductCategoryTreeInlineForm(SBAdminBaseForm):
         fields = ["category"]
 ```
 #### Plug it into a fake inline:
-
 ```python title="catalog/sb_admin.py"
 class ProductCategoryTreeInline(SBAdminFakeInlineMixin, SBAdminTableInline):
     model = Product
@@ -122,3 +121,5 @@ class ProductCategoryTreeInline(SBAdminFakeInlineMixin, SBAdminTableInline):
     def filter_fake_inline_identifier_by_parent_instance(self, inline_queryset, parent_instance):
         return inline_queryset.filter(pk=parent_instance.id)
 ```
+
+You can learn more about Fake Inlines in [🔗Fake inlines section](/docs/detail/fake_inlines).
