@@ -1,0 +1,124 @@
+---
+sidebar_position: 4
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Tree Widget
+The Tree Widget is a powerful UI component used to visualize and interact with hierarchical data structures—like categories in a product catalog.
+
+![TreeWidget sbadmin](/img/screenshots/tree_widget.png)
+
+## 💡 Example: Tree Widget for Treebeard Categories
+
+This guide walks you through setting up a Tree Widget for a hierarchical model using `treebeard.MP_Node`, such as your `Category` model.
+
+---
+##  Prerequisites: Category Model
+
+Your `Category` model must inherit from `MP_Node` and define `path`, which is used by `treebeard`.
+
+```python title="models.py"
+from treebeard.mp_tree import MP_Node
+from project.core.models import BaseDomainModel
+
+class Category(BaseDomainModel, MP_Node):
+    path = models.CharField(max_length=255)
+    order_by = models.PositiveIntegerField(default=0)
+    is_active = models.BooleanField(default=True, verbose_name="Is active")
+    name = models.CharField(max_length=200)
+    slug = models.SlugField(unique=True)
+    image = models.ImageField(upload_to="categories", null=True, blank=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = "Category"
+        verbose_name_plural = "Categories"
+```
+
+## 🛠️ Step-by-Step Setup
+
+#### 1. Define a Tree Widget
+
+Create a custom widget by subclassing `SBAdminTreeWidget`.
+
+```python title="catalog/sb_admin_widgets.py"
+from django_smartbase_admin.admin.widgets import SBAdminTreeWidget
+from .models import Category
+
+class CategoryTreeWidget(SBAdminTreeWidget):
+    model = Category
+    order_by = ["path"]
+
+    @classmethod
+    def get_tree_base_values(cls):
+        return ["id", "path", "name"]
+
+    @classmethod
+    def get_tree_title(cls, request, item):
+        return item.get("name")
+
+    @classmethod
+    def get_label(cls, request, item):
+        return item.name
+```
+
+#### 2. Enable Tree View in Admin List
+Update your admin to use a tree list view with reorder support.
+```python title="catalog/sb_admin.py"
+@admin.register(Category, site=sb_admin_site)
+class CategorySBAdmin(SBAdmin):
+    model = Category
+    change_list_template = "sb_admin/actions/tree_list.html"
+    sbadmin_list_display = ("name",)
+    sbadmin_list_display_data = ["depth", "path"]
+    sbadmin_list_reorder_field = "path"
+    ordering = ["path"]
+    use_tree_ordering = True
+
+    def get_extra_context(self, request, extra_context=None):
+        extra_context = extra_context or {}
+        extra_context["tree_strings"] = CategoryTreeWidget.tree_strings
+        extra_context["tree_json_url"] = self.get_action_url("tree_list_json")
+        return extra_context
+```
+
+### (Optional) Use Tree Selector in Inlines
+Allow users to select categories via an interactive tree in a form or inline
+![TreeWidget sbadmin](/img/screenshots/tree_widget_inline.png)
+
+```python title="catalog/sb_admin_forms.py"
+from django import forms
+from django_smartbase_admin.admin.admin_base import SBAdminBaseForm
+from .models import Product, Category
+from .sb_admin_widgets import CategoryTreeWidget
+
+class ProductCategoryTreeInlineForm(SBAdminBaseForm):
+    category = forms.ModelMultipleChoiceField(
+        queryset=Category.objects.all(),
+        required=False,
+        label="Category",
+        to_field_name="path",  # required for MP_Node trees
+        widget=CategoryTreeWidget(inline=True, multiselect=True, value_field="path"),
+    )
+
+    class Meta:
+        model = Product
+        fields = ["category"]
+```
+#### Plug it into a fake inline:
+
+```python title="catalog/sb_admin.py"
+class ProductCategoryTreeInline(SBAdminFakeInlineMixin, SBAdminTableInline):
+    model = Product
+    form = ProductCategoryTreeInlineForm
+    title = _("Categories - Tree Widget example")
+
+    def has_add_permission(self, request, obj=None):
+        return False
+
+    def filter_fake_inline_identifier_by_parent_instance(self, inline_queryset, parent_instance):
+        return inline_queryset.filter(pk=parent_instance.id)
+```

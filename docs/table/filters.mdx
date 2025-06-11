@@ -57,3 +57,21 @@ class ProductSBAdmin(SBAdmin):
 </TabItem>
 
 </Tabs>
+
+# Advanced Filters
+To enable advance filters you have to set filter version in your `SBAdminRoleConfiguration`
+
+<Tabs groupId="1">
+<TabItem value="code" label="Code">
+```python title="sb_admin_configuration.py"
+class SBAdminConfiguration(SBAdminConfigurationBase):
+    filters_version = FilterVersions.FILTERS_VERSION_2,
+```
+
+</TabItem>
+<TabItem value="list" label="Result">
+![Category sbadmin](/img/screenshots/advanced_filters.png)
+</TabItem>
+
+</Tabs>
+
