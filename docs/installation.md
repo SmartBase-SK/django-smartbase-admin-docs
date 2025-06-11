@@ -5,6 +5,7 @@ title: Quick start
 # Getting Started
 
 Smartbase Admin is a powerful extension for Django projects, providing a customizable admin interface. Follow the steps below to install and configure it in your project.
+![Dashboard](/img/screenshots/dashboard_big.png)
 
 ---
 

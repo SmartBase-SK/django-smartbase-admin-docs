@@ -1,6 +1,6 @@
 {
-  "label": "Table",
-  "position": 5,
+  "label": "List view",
+  "position": 4,
   "link": {
     "type": "generated-index",
     "description": "Table listing"

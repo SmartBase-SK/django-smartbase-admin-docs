@@ -7,7 +7,7 @@ import TabItem from '@theme/TabItem';
 # Menu
 This section demonstrates how to define menu items using the SBAdminRoleConfiguration class.
 
-### Defining Menu Items
+## Defining Menu Items
 To create a custom menu, define a list of SBAdminMenuItem instances and pass them to SBAdminRoleConfiguration.
 
 ```python title="sb_admin_configuration.py"
@@ -32,3 +32,61 @@ Each `SBAdminMenuItem` accepts the following key parameters:
 - `icon` (optional): The icon name from [🔗 Available icons](https://github.com/SmartBase-SK/django-smartbase-admin/tree/main/src/django_smartbase_admin/static/sb_admin/sprites/sb_admin).
 - `label` (optional): Overrides the default label.
 - `sub_items` (optional): A list of nested SBAdminMenuItem objects, supporting menu nesting.
+
+## Role-Based Menu Configuration
+You can define different menus for different user roles by extending SBAdminRoleConfiguration and using get_configuration_for_roles in your SBAdminConfiguration.
+
+### Step 1: Define Menu Variants
+
+
+```python title="sb_admin_configuration.py"
+admin_menu_items = [
+    SBAdminMenuItem(view_id="dashboard", icon="All-application"),
+    SBAdminMenuItem(
+        label="Catalog",
+        icon="Box",
+        sub_items=[
+            SBAdminMenuItem(view_id="catalog_product", label="Products"),
+            SBAdminMenuItem(view_id="catalog_category", label="Categories"),
+            SBAdminMenuItem(view_id="catalog_manufacturer", label="Manufacturers"),
+        ],
+    ),
+    SBAdminMenuItem(view_id="catalog_product", label="List View", icon="List-checkbox"),
+    SBAdminMenuItem(view_id="catalog_purchase", label="Advanced filters", icon="Filter"),
+]
+
+editor_menu_items = [
+    SBAdminMenuItem(view_id="catalog_product", icon="List-checkbox", label="List View"),
+    SBAdminMenuItem(view_id="catalog_category", icon="List-checkbox", label="Tree View"),
+    SBAdminMenuItem(view_id="catalog_manufacturer", icon="Box"),
+]
+```
+
+### Step 2: Create Role-Based Configurations
+
+```python title="sb_admin_configuration.py"
+class AdminConfiguration(SBAdminRoleConfiguration):
+    menu_items = admin_menu_items
+    default_view = SBAdminMenuItem(view_id="dashboard")
+    registered_views = [...]
+
+
+class EditorConfiguration(SBAdminRoleConfiguration):
+    menu_items = editor_menu_items
+    default_view = SBAdminMenuItem(view_id="catalog_product")
+    registered_views = [...]
+```
+
+### Step 3: Return the Configuration Based on User Role
+```python title="sb_admin_configuration.py"
+EDITOR_ROLE = "Editors"
+
+class SBAdminConfiguration(SBAdminConfigurationBase):
+    def get_configuration_for_roles(self, user_roles):
+        user_roles = list(user_roles)
+        if EDITOR_ROLE in user_roles:
+            return EditorConfiguration()
+        return AdminConfiguration()
+```
+
+With this setup, each user will see a customized menu based on their role. You can extend this further to support more roles or dynamic permissions.

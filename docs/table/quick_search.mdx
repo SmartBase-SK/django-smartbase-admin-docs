@@ -1,0 +1,33 @@
+---
+sidebar_position: 4
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+
+# Quick Search
+
+To enable a ** Quick search bar** above the list view in SmartBase Admin, simply define the `search_fields` attribute in your admin class. This allows users to quickly filter records based on input keywords.
+
+#### Example
+
+
+<Tabs groupId="1">
+<TabItem value="code" label="Code">
+```python title="catalog/sb_Admin.py"
+@admin.register(Manufacturer, site=sb_admin_site)
+class ManufacturerSBAdmin(SBAdmin):
+    model = Manufacturer
+    ...
+    # Enables the search bar to filter by name
+    search_fields = ["name"]
+    ...
+```
+
+</TabItem>
+<TabItem value="list" label="Result">
+![Category sbadmin](/img/screenshots/quick_search.png)
+</TabItem>
+
+</Tabs>
+

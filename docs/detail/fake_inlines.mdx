@@ -1,5 +1,5 @@
 ---
-sidebar_position: 2
+sidebar_position: 4
 title: Fake Inlines
 ---
 import Tabs from '@theme/Tabs';
@@ -10,6 +10,10 @@ import TabItem from '@theme/TabItem';
 SBAdminFakeInlineMixin is used to create inlines that are dynamically filtered — without needing a real ForeignKey relationship in the database. This is useful when you want to show related data based on some logic (e.g. "products from the same manufacturer") but don’t want to (or can't) define a hard model relation.
 
 These inlines are rendered like standard inlines but do not impact database schema.
+
+![Fake inlines](/img/screenshots/fake_inline_example.png)
+
+
 ## 🛠 How it works
 - Define inline which extending `SBAdminFakeInlineMixin`
 - For inline, define `filter_fake_inline_identifier_by_parent_instance(self, inline_queryset, parent_instance)`. This controls what queryset will be shown in the inline, based on the parent instance.
@@ -21,11 +25,11 @@ This example showcases a fake inline for a Product admin page that lists other p
 ```python title="catalog/sb_admin.py"
 class ProductSameManufacturerInline(SBAdminFakeInlineMixin, SBAdminTableInline):
     model = Product
-    fields = ["name", "is_current_product"]
-    readonly_fields = ["name", "is_current_product"]
+    fields = ["name", "price", "is_active", "created", "is_current_product"]
+    readonly_fields = fields
     can_delete = False
-    verbose_name = "Product from the same manufacturer"
-    verbose_name_plural = "Products from the same manufacturer"
+    verbose_name = "Product from the same manufacturer - Fake inline example"
+    verbose_name_plural = "Products from the same manufacturer - Fake inline example"
 
     def has_add_permission(self, request, obj=None):
         return False
