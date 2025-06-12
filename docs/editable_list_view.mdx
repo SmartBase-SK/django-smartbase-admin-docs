@@ -25,7 +25,7 @@ class EditableListModelSBAdmin(SBAdmin):
     ]
     search_fields = ["name"]
     fieldsets = [
-        (None, {"fields": ["name"]}),
+        (None, {"fields": ["name", "value_1", "value_2"]}),
     ]
 
     def get_tabulator_definition(self, request):
