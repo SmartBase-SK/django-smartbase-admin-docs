@@ -1,0 +1,66 @@
+---
+sidebar_position: 5
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Editable List View
+
+You can enable inline editing directly in the list view using Tabulator editors. This feature is useful when you want to quickly update fields without navigating into each individual object’s edit form.
+
+![Editable list view](/img/screenshots/editable_list_view.png)
+
+---
+
+### 💡 Example: Making List Columns Editable
+
+```python title="catalog/sb_admin.py"
+@admin.register(EditableListModel, site=sb_admin_site)
+class EditableListModelSBAdmin(SBAdmin):
+    model = EditableListModel
+    sbadmin_list_display = [
+        "name",
+        SBAdminField(name="value_1", tabulator_editor="input"),
+        SBAdminField(name="value_2", tabulator_editor="input"),
+    ]
+    search_fields = ["name"]
+    fieldsets = [
+        (None, {"fields": ["name"]}),
+    ]
+
+    def get_tabulator_definition(self, request):
+        tabulator_definition = super().get_tabulator_definition(request)
+        tabulator_definition["modules"] = ["dataEditModule"]
+        return tabulator_definition
+
+    def action_table_data_edit(self, request, modifier):
+        current_row_id = json.loads(request.POST.get("currentRowId", ""))
+        column_field_name = request.POST.get("columnFieldName", "")
+        cell_value = request.POST.get("cellValue", "")
+        field_map = self.get_field_map(request)
+        field = field_map.get(column_field_name)
+        if field:
+            messages.add_message(
+                request,
+                messages.INFO,
+                f"Row id: {current_row_id}, New value: {cell_value}"
+            )
+            messages.add_message(
+                request,
+                messages.WARNING,
+                "Database works in read-only mode. Changes will not be persistent."
+            )
+            return HttpResponse(status=200, content=render_notifications(request))
+```
+#### 🛠 How It Works
+
+- **Editable Columns**:
+The fields value_1 and value_2 use `tabulator_editor="input"` to become editable directly in the list view.
+- **Edit Mode Activation**:
+The `dataEditModule` is enabled in `get_tabulator_definition`, which allows Tabulator to handle cell editing behavior.
+- **Edit Action Handling**:
+`action_table_data_edit` captures the edit via AJAX, validates it, and can persist changes (this example just logs them).
+
+:::info[Note]
+This example is set to read-only mode. To persist changes, you'll need to implement saving logic in `action_table_data_edit`.
+:::
