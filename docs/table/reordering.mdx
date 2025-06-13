@@ -1,0 +1,48 @@
+---
+sidebar_position: 5
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Reordering List View
+
+You can enable **manual reordering** of items within the SBAdmin list view using the `sbadmin_list_reorder_field`. This allows admins to define the visible order of items using drag-and-drop, even when pagination is enabled.
+
+![Reorder](/img/screenshots/reorder.png)
+
+### Prerequisites
+
+To enable reordering:
+
+1. Your model must include a field (e.g. `order_by`) to track order.
+2. You must configure both `sbadmin_list_reorder_field` and `ordering`.
+
+### 💡Example
+
+```python title="catalog/sb_admin.py"
+@admin.register(ReorderModel, site=sb_admin_site)
+class ReorderModelSBAdmin(SBAdmin):
+    model = ReorderModel
+
+    # Enables reordering via drag-and-drop
+    sbadmin_list_reorder_field = "order_by"
+    ordering = ["order_by"]
+
+    # Basic list view config
+    sbadmin_list_display = ["name"]
+    search_fields = ["name"]
+
+    fieldsets = [
+        (None, {"fields": ["name"]}),
+    ]
+```
+
+Once enabled, a Reorder button will appear in the list view toolbar.
+![Reorder](/img/screenshots/reorder_button.png)
+
+Clicking it will redirect to a special Reorder View, where you can:
+Drag and drop rows to change order.
+
+:::warning[Keep in mind]
+If you are testing this functionality in [Demo project](https://sbadmin.sbdev.sk/), database works in read-only mode. Reorder will not save.
+:::
