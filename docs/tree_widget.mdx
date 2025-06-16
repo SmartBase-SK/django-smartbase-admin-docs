@@ -123,3 +123,53 @@ class ProductCategoryTreeInline(SBAdminFakeInlineMixin, SBAdminTableInline):
 ```
 
 You can learn more about Fake Inlines in [🔗Fake inlines section](/docs/detail/fake_inlines).
+
+
+###  Tree Filter Widget
+The Tree Filter Widget enables users to filter data using hierarchical structures such as categories, departments etc...
+
+![TreeWidget filter sbadmin](/img/screenshots/tree_widget_filter.png)
+
+### 💡 Example: Category Tree Filter for Product SBAdmin View
+
+#### 1. Create widget
+Create a filter-specific widget by combining the base tree widget and SBAdminTreeFilterWidget:
+
+```python title="catalog/sb_admin_widgets.py"
+class CategoryTreeFilterWidget(CategoryTreeWidget, SBAdminTreeFilterWidget):
+    template_name = "sb_admin/filter_widgets/tree_select_filter.html"
+```
+
+
+#### 2. Add the Filter to Your Admin
+Use the custom widget in a SBAdminField in your admin class to enable tree-based filtering:
+
+```python title="catalog/sb_admin.py"
+python title="catalog/sb_admin.py"
+@admin.register(Product, site=sb_admin_site)
+class ProductSBAdmin(SBAdmin):
+    model = Product
+    sbadmin_list_display = (
+         # ... Other fields
+        SBAdminField(
+            name="categories",
+            title="Categories",
+            annotate="categories__name",
+            filter_widget=CategoryTreeFilterWidget(
+                search_query_lambda=lambda request, qs, model, search_term, language_code: qs.filter(
+                    name__icontains=search_term
+                ),
+                filter_query_lambda=lambda request, filter_value: Q(
+                    is_active=True
+                ),
+            ),
+        ),
+    )
+```
+
+#### ⚙️ Key Options
+- `multiselect`: True for multiple selections, False for single.
+- `value_field`: Typically `"path"` for `MP_Node` trees.
+- `search_query_lambda`: Optional search support inside the tree.
+- `filter_query_lambda`: Filter values in widget.
+
