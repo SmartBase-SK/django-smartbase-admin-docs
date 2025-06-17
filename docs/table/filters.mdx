@@ -59,7 +59,12 @@ class ProductSBAdmin(SBAdmin):
 </Tabs>
 
 # Advanced Filters
-To enable advance filters you have to set filter version in your `SBAdminRoleConfiguration`
+Advanced Filters allow you to create powerful queries across different fields for more precise data filtering.
+
+![Advanced filters sbadmin](/img/screenshots/advanced_filters2.png)
+
+### Enable Advanced Filters globally
+To enable advance filters globally, you have to set filter version in your `SBAdminRoleConfiguration`
 
 <Tabs groupId="2">
 <TabItem value="code" label="Code">
@@ -75,3 +80,14 @@ class SBAdminConfiguration(SBAdminConfigurationBase):
 
 </Tabs>
 
+### Enable Advanced Filters only for selected views
+You can enable Andvanced Filters for view by setting `filters_version = FilterVersions.FILTERS_VERSION_2` parameter in your SBAdmin view.
+
+```python title="catalog/sb_admin.py"
+@admin.register(Purchase, site=sb_admin_site)
+class PurchaseSBAdmin(SBAdmin):
+    model = Purchase
+    filters_version = FilterVersions.FILTERS_VERSION_2
+    ...
+
+```
