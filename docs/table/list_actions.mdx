@@ -1,0 +1,106 @@
+---
+sidebar_position: 6
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Actions
+
+SmartBase Admin allows you to define custom actions that appear in the top action bar of the list view:
+
+- Simple actions (button)
+- Dropdown with multiple actions
+
+These actions can be defined with icon or not. It triggers any server-side logic and return an HTTP response — for example, exporting data to Excel.
+
+![List actions](/img/screenshots/list_actions.png)
+
+---
+
+## 💡Example: Actions for exporting demo excel sheet
+
+```python title="catalog/sb_admin.py"
+from django.utils.translation import gettext_lazy as _
+from django_smartbase_admin.engine.actions import SBAdminCustomAction
+from django_smartbase_admin.services.xlsx_export import SBAdminXLSXExportService
+
+@admin.register(ListActionModel, site=sb_admin_site)
+class ListActionModelSBAdmin(SBAdmin):
+    model = ListActionModel
+    sbadmin_list_display = ["name"]
+    search_fields = ["name"]
+
+    def export_action(self, request, modifier):
+        data = [{"Demo": "demo"}]
+        columns = [{"field": k, "title": k} for k in data[0].keys()] if data else []
+
+        return SBAdminXLSXExportService.create_workbook_http_respone(
+            file_name="Demo_export.xlsx",
+            data=data,
+            columns=columns,
+            options={"header_rows_count": 1},
+        )
+
+    def get_sbadmin_list_actions(self, request):
+        return [
+            SBAdminCustomAction(
+                title=_("Single action"),
+                view=self,
+                action_id="export_action",
+            ),
+            SBAdminCustomAction(
+                title=_("Single action with icon"),
+                view=self,
+                icon="Lightning",
+                action_id="export_action",
+            ),
+            SBAdminCustomAction(
+                title=_("Dropdown actions"),
+                icon="Excel-one",
+                sub_actions=[
+                    SBAdminCustomAction(
+                        title=_("Action without icon"),
+                        view=self,
+                        action_id="export_action",
+                    ),
+                    SBAdminCustomAction(
+                        title=_("Action with icon"),
+                        icon="Calendar",
+                        view=self,
+                        action_id="export_action",
+                    ),
+                ],
+            ),
+            SBAdminCustomAction(
+                title=_("Dropdown actions with icon"),
+                icon="Printer",
+                sub_actions=[
+                    SBAdminCustomAction(
+                        title=_("Action without icon"),
+                        view=self,
+                        action_id="export_action",
+                    ),
+                    SBAdminCustomAction(
+                        title=_("Action with icon"),
+                        icon="Calendar",
+                        view=self,
+                        action_id="export_action",
+                    ),
+                ],
+            ),
+        ]
+```
+
+### 🛠 How it works
+
+You override `get_sbadmin_list_actions(self, request)` in your SBAdmin class.
+
+Return a list of `SBAdminCustomAction` objects.
+
+Each action is mapped to a method in your admin (via `action_id`).
+
+**You can define**:
+
+- A single button action
+- A dropdown with multiple actions (via `sub_actions`)
+- An optional icon ([🔗 Available icons](https://github.com/SmartBase-SK/django-smartbase-admin/tree/main/src/django_smartbase_admin/static/sb_admin/sprites/sb_admin)).
