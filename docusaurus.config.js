@@ -13,7 +13,15 @@ const config = {
   title: 'Django SmartBase Admin Documentation',
   tagline: '',
   favicon: 'img/favicon.ico',
-
+  headTags: [
+    {
+      tagName: 'meta',
+      attributes: {
+        name: 'algolia-site-verification',
+        content: '9E63A27732003986',
+      },
+    },
+  ],
   // Set the production url of your site here
   url: 'https://smartbase-sk.github.io',
   // Set the /<baseUrl>/ pathname under which your site is served
