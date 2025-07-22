@@ -79,12 +79,14 @@ class ListActionModelSBAdmin(SBAdmin):
                         title=_("Action without icon"),
                         view=self,
                         action_id="export_action",
+                        open_in_new_tab=True,
                     ),
                     SBAdminCustomAction(
                         title=_("Action with icon"),
                         icon="Calendar",
                         view=self,
                         action_id="export_action",
+                        open_in_new_tab=True,
                     ),
                 ],
             ),
@@ -104,3 +106,4 @@ Each action is mapped to a method in your admin (via `action_id`).
 - A single button action
 - A dropdown with multiple actions (via `sub_actions`)
 - An optional icon ([🔗 Available icons](https://github.com/SmartBase-SK/django-smartbase-admin/tree/main/src/django_smartbase_admin/static/sb_admin/sprites/sb_admin)).
+- You can set to open an actions links in the new tab (via `open_in_new_tab = True` parameter)
