@@ -137,6 +137,11 @@ const config = {
         theme: prismThemes.github,
         darkTheme: prismThemes.dracula,
       },
+        algolia: {
+        appId: 'B6QCVQHQ3K',
+        apiKey: '68b57969a019d097bfb3a11def26517f',
+        indexName: 'Django SmartBase Admin Documentation',
+      },
     }),
 };
 
