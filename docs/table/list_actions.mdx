@@ -28,7 +28,6 @@ from django_smartbase_admin.services.xlsx_export import SBAdminXLSXExportService
 class ListActionModelSBAdmin(SBAdmin):
     model = ListActionModel
     sbadmin_list_display = ["name"]
-    search_fields = ["name"]
 
     def export_action(self, request, modifier):
         data = [{"Demo": "demo"}]

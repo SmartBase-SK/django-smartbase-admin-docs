@@ -101,7 +101,6 @@ class ProductSBAdmin(SBAdmin):
 class CategorySBAdmin(SBAdmin):
     model = Category
     sbadmin_list_display = ("name", "slug", "parent")
-    search_fields = ["name"]
     ordering = ["name"]
     fieldsets = [
         (
@@ -129,7 +128,6 @@ class CategorySBAdmin(SBAdmin):
 class ManufacturerSBAdmin(SBAdmin):
     model = Manufacturer
     sbadmin_list_display = ("name",)
-    search_fields = ["name"]
     fieldsets = [
         (
             None,

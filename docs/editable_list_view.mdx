@@ -23,7 +23,6 @@ class EditableListModelSBAdmin(SBAdmin):
         SBAdminField(name="value_1", tabulator_editor="input"),
         SBAdminField(name="value_2", tabulator_editor="input"),
     ]
-    search_fields = ["name"]
     fieldsets = [
         (None, {"fields": ["name", "value_1", "value_2"]}),
     ]
