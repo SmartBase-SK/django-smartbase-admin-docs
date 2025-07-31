@@ -10,12 +10,12 @@ import styles from './index.module.css';
 function HomepageHeader() {
     const {siteConfig} = useDocusaurusContext();
     return (
-        <header className={clsx('hero hero--primary', styles.heroBanner)}>
+        <header className={clsx('hero', styles.heroBanner)}>
             <div className="container">
                 <Heading as="h1" className="hero__title">
                     {siteConfig.title}
                 </Heading>
-                <p className="hero__subtitle">The SmartBase Admin application for Django is an enhanced administrative interface designed to improve the management of Django-based projects. It offers a more intuitive and feature-rich experience compared to the default Django admin interface.</p>
+                <p style={{fontSize:19+'px'}}>A modern, modular, and developer-friendly admin interface for Django. Built to speed up development of internal tools and admin panels — beautifully and efficiently.</p>
                 <div className={styles.buttons}>
                     <Link
                         className="button button--secondary button--lg"
@@ -32,8 +32,8 @@ export default function Home() {
     const {siteConfig} = useDocusaurusContext();
     return (
         <Layout
-            title={`Hello from ${siteConfig.title}`}
-            description="Description will go into a meta tag in <head />">
+            title={`Django SmartBase Admin Documentation`}
+            description="Django SmartBase Admin Documentation">
             <HomepageHeader/>
             <main>
                 <section className={styles.features}>

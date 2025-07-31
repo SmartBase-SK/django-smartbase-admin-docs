@@ -91,15 +91,15 @@ const config = {
       footer: {
         style: 'dark',
         links: [
-          {
-            title: 'Docs',
-            items: [
-              {
-                label: 'Documentation',
-                to: '/docs/installation',
-              },
-            ],
-          },
+          // {
+          //   title: 'Docs',
+          //   items: [
+          //     {
+          //       label: 'Documentation',
+          //       to: '/docs/installation',
+          //     },
+          //   ],
+          // },
           // {
           //   title: 'Community',
           //   items: [
