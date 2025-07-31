@@ -1,10 +1,33 @@
-.features {
-  display: flex;
-  align-items: center;
-  padding: 2rem 0;
-  width: 100%;
+
+.featureListBlock {
+  padding: 3rem 1rem;
+  background: #f9f9f9;
 }
 
-.featureSvg {
-  width: 200px;
+.featureTileGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.featureTile {
+  display: block;
+  padding: 1rem 1.25rem;
+  background: white;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  color: #333;
+  font-size: 0.95rem;
+  line-height: 1.6;
+  border: 1px solid #eee;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
+  transition: all 0.15s ease-in-out;
+}
+
+.featureTile:hover {
+  background: #f0f6ff;
+  border-color: #cce3ff;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.06);
 }
