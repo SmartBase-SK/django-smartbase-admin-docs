@@ -61,7 +61,7 @@ export default function HomepageFeatures() {
                         <Link className={styles.featureTile} to="/docs/table/filters">
                             💾 Save and reuse custom filters
                         </Link>
-                        <Link className={styles.featureTile} to="/docs/detail/autocomplete">
+                        <Link className={styles.featureTile} to="/docs/detail/classes">
                             🧠 Autocomplete support in detail view
                         </Link>
                         <Link className={styles.featureTile} to="/docs/detail/fake_inlines">
@@ -70,7 +70,7 @@ export default function HomepageFeatures() {
                         <Link className={styles.featureTile} to="docs/table/list_actions">
                             🧩 Extend list and detail views with custom actions
                         </Link>
-                        <Link className={styles.featureTile} to="/docs/components/tree-widget">
+                        <Link className={styles.featureTile} to="/docs/tree_widget">
                             🗂️ Tree Widget for managing hierarchical data
                         </Link>
                         <span className={styles.featureTile}>
