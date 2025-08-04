@@ -1,0 +1,20 @@
+---
+sidebar_position: 6
+title: Modals in inlines
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+In addition to foreign key fields, Django SmartBase Admin also supports modals for inline models.
+
+By default, clicking the “Add” button in a table inline simply inserts a new row directly into the inline formset.
+However, if you set the `sb_admin_add_modal` attribute to `True` in your inline definition:
+
+```python
+class ProductImageInline(SBAdminTableInline):
+    ...
+    sb_admin_add_modal = True
+```
+The “Add” button will open a modal dialog instead of inserting a blank row. This allows users to create a related object using a full form layout with validation, without leaving the current context.
+
+![Related_buttons sbadmin](/img/screenshots/inline_modal.png)

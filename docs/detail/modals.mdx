@@ -1,0 +1,53 @@
+---
+sidebar_position: 5
+title: Related Modals
+---
+import Tabs from '@theme/Tabs';
+import TabItem from '@theme/TabItem';
+
+# Related Modals
+In Django Smartbase Admin, related models can be managed directly from within a parent model form using Related Modals.
+
+These are modal dialogs that open inline (without using iframe),
+allowing users to either view or create related objects without leaving the current page.
+
+![Related_buttons sbadmin](/img/screenshots/modal.png)
+
+If there is a registered sbadmin view for the related model (e.g. Manufacturer) and the user has the appropriate permissions,
+action buttons will appear next to the related field:
+
+![Related_buttons sbadmin](/img/screenshots/related_buttons.png)
+
+
+## Controlling Visibility of Related Buttons
+The visibility of these buttons is controlled by the method:
+
+```python
+def autocomplete_show_related_buttons(
+    self,
+    related_model,
+    field_name,
+    current_view,
+    request,
+) -> bool:
+    return not is_modal(request)
+```
+
+This method is defined in `SBAdminRoleConfiguration` and can be overridden in your custom [🔗configuration class](/docs/installation#3-define-the-smartbase-admin-configuration) to provide custom control.
+
+### 💡 Example: Hide related buttons for specific models
+```python
+def autocomplete_show_related_buttons(
+    self,
+    related_model,
+    field_name,
+    current_view,
+    request,
+) -> bool:
+    # Hide related buttons for specific models
+    if related_model.__name__ in ["User","Group"]:
+        return False
+    return super().autocomplete_show_related_buttons(
+        related_model, field_name, current_view, request
+    )
+```
