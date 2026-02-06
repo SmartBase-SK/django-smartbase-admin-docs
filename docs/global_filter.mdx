@@ -69,10 +69,12 @@ class SBAdminConfiguration(SBAdminConfigurationBase):
 Override `restrict_queryset()` to apply the global filter to domain-scoped models.
 
 ```python title="sb_admin_configuration.py"
+from django_smartbase_admin.engine.configuration import SBAdminConfigurationBase, SBAdminRoleConfiguration
 from django_smartbase_admin.engine.const import GLOBAL_FILTER_DATA_KEY
 
-class SBAdminConfiguration(SBAdminConfigurationBase):
-    global_filter_form = GlobalFilterForm
+
+class FilteredRoleConfiguration(SBAdminRoleConfiguration):
+    """Role configuration with global filter support."""
 
     def restrict_queryset(
         self,
@@ -88,9 +90,18 @@ class SBAdminConfiguration(SBAdminConfigurationBase):
 
         if global_filter_map:
             domain = global_filter_map.get("domain")
-            if issubclass(model, BaseDomainModel) and domain: # BaseDomainModel contains domain FK
+            if issubclass(model, BaseDomainModel) and domain:  # BaseDomainModel contains domain FK
                 qs = qs.filter(domain_id=domain)
         return qs
+
+
+class SBAdminConfiguration(SBAdminConfigurationBase):
+    global_filter_form = GlobalFilterForm
+
+    def get_configuration_for_roles(self, user_roles):
+        return FilteredRoleConfiguration(
+            # ... menu_items, default_view, registered_views
+        )
 ```
 This ensures that only the data belonging to the selected domain is displayed in dashboards and lists.
 

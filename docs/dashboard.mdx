@@ -27,7 +27,7 @@ This widget creates a line chart of total_price grouped by month (or other resol
 <TabItem value="code" label="Code">
 ```python title="sb_admin_configuration.py"
 ...
-from django_smartbase_admin.dashboard.chart_widgets import (
+from django_smartbase_admin.engine.dashboard import (
     SBAdminDashboardLineChartWidgetByDate,
     SBAdminChartAggregateSubWidget,
 )
@@ -66,7 +66,7 @@ This widget shows a paginated table of the latest purchases.
 <Tabs groupId="2">
 <TabItem value="code" label="Code">
 ```python title="sb_admin_configuration.py"
-from django_smartbase_admin.dashboard.list_widgets import SBAdminDashboardListWidget
+from django_smartbase_admin.engine.dashboard import SBAdminDashboardListWidget
 
 class PurchaseDashboardListWidget(SBAdminDashboardListWidget):
     ordering = ["-created_at"]
@@ -87,9 +87,9 @@ This configures the dashboard in the left navigation and sets it as the default 
 
 ```python title="sb_admin_configuration.py"
 
-from django_smartbase_admin.engine.views import SBAdminDashboardView
-from django_smartbase_admin.engine.menu import SBAdminMenuItem
-from django_smartbase_admin.configuration import SBAdminRoleConfiguration
+from django_smartbase_admin.views.dashboard_view import SBAdminDashboardView
+from django_smartbase_admin.engine.menu_item import SBAdminMenuItem
+from django_smartbase_admin.engine.configuration import SBAdminRoleConfiguration
 
 config = SBAdminRoleConfiguration(
     default_view=SBAdminMenuItem(view_id="dashboard"),
