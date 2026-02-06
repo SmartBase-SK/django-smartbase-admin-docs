@@ -5,7 +5,51 @@ sidebar_position: 1
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
-## Previous / Next Navigation
+## 🏷️ Custom View Labels
+
+Override the labels displayed in the sidebar menu, the "Add" button, and the detail page title/breadcrumb.
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `menu_label` | str \| None | `None` | Override the sidebar menu label. Defaults to `model._meta.verbose_name_plural` |
+| `add_label` | str \| None | `None` | Override the "Add" button and "Add" page title (e.g., "Add **Product**") |
+| `change_label` | str \| None | `None` | Override the detail/change page title. Defaults to the object's `__str__` representation |
+
+Each attribute has a corresponding method for dynamic override:
+- `get_menu_label() -> str`
+- `get_add_label(request, object_id) -> str | None`
+- `get_change_label(request, object_id) -> str | None`
+
+```python title="catalog/sb_admin.py"
+@admin.register(Product, site=sb_admin_site)
+class ProductSBAdmin(SBAdmin):
+    model = Product
+    menu_label = "Product Catalog"    # Sidebar shows "Product Catalog" instead of "Products"
+    add_label = "Product"             # "Add" button shows "Add Product"
+    change_label = "Edit Product"     # Detail page title shows "Edit Product" instead of the object name
+```
+
+For dynamic labels based on the object being edited, override the method:
+
+```python title="catalog/sb_admin.py"
+@admin.register(Product, site=sb_admin_site)
+class ProductSBAdmin(SBAdmin):
+    model = Product
+
+    def get_change_label(self, request, object_id=None):
+        """Show product SKU in the detail page title."""
+        if object_id:
+            try:
+                product = Product.objects.only("sku").get(pk=object_id)
+                return f"Edit {product.sku}"
+            except Product.DoesNotExist:
+                pass
+        return self.change_label
+```
+
+---
+
+## ⏮️ Previous / Next Navigation
 
 Enable previous/next navigation buttons on the detail (change) page to quickly move between records without returning to the list view.
 
@@ -22,7 +66,7 @@ class ProductSBAdmin(SBAdmin):
 
 ---
 
-### Fieldset Layout Classes
+### 🧩 Fieldset Layout Classes
 SmartBase Admin supports additional customization of fieldset layout in detail views using the classes option.
 
 Django SmartBase Admin currently supports two layout classes:
