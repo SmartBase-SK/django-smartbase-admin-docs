@@ -66,6 +66,38 @@ class ProductSBAdmin(SBAdmin):
 
 ---
 
+## 🗑️ Custom Delete Confirmation Template
+
+Override the template rendered when a user clicks "Delete" on a single object. This is useful when you need a custom confirmation page — for example, to display additional warnings, require extra input, or show a summary of side effects before deletion.
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `delete_confirmation_template` | str | `"sb_admin/actions/delete_confirmation.html"` | Template used for the single-object delete confirmation page |
+
+```python title="catalog/sb_admin.py"
+@admin.register(Product, site=sb_admin_site)
+class ProductSBAdmin(SBAdmin):
+    model = Product
+    delete_confirmation_template = "catalog/custom_delete_confirmation.html"
+```
+
+The custom template should extend the base SBAdmin template and can use the following context variables:
+
+| Variable | Description |
+|----------|-------------|
+| `object` | The object being deleted |
+| `object_name` | Display name of the model |
+| `deleted_objects` | Nested list of related objects that will also be deleted |
+| `model_count` | List of `(model_name, count)` tuples summarizing affected objects |
+| `perms_lacking` | List of object types the user lacks permission to delete |
+| `protected` | List of protected related objects that prevent deletion |
+
+:::tip
+For customizing the **bulk delete** confirmation page (when deleting multiple objects from the list view), use `delete_selected_confirmation_template` instead.
+:::
+
+---
+
 ### 🧩 Fieldset Layout Classes
 SmartBase Admin supports additional customization of fieldset layout in detail views using the classes option.
 
