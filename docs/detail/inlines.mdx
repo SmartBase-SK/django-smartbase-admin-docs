@@ -49,5 +49,38 @@ class ProductImageInline(SBAdminStackedInline):
 </TabItem>
 </Tabs>
 
+### SBAdminStackedInlineBase (Collapsible Stacked Inline)
+
+`SBAdminStackedInline` inherits from `SBAdminStackedInlineBase`, which adds a **collapse/expand** toggle for all inline rows. You can control whether inlines start collapsed by setting `default_collapsed`:
+
+```python title="catalog/sb_admin.py"
+from django_smartbase_admin.admin.admin_base import SBAdminStackedInline
+
+class ProductImageInline(SBAdminStackedInline):
+    model = ProductImage
+    fields = ("image", "alt_text")
+    extra = 1
+    default_collapsed = True  # All inline rows start collapsed
+```
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `default_collapsed` | bool | `False` | If `True`, all stacked inline rows are collapsed by default. A "Collapse" toggle button is automatically added to the inline header. |
+
+### SBAdminTableInlinePaginated
+
+For inlines with many related objects, use `SBAdminTableInlinePaginated` to enable server-side pagination:
+
+```python title="catalog/sb_admin.py"
+from django_smartbase_admin.admin.admin_base import SBAdminTableInlinePaginated
+
+class OrderItemInline(SBAdminTableInlinePaginated):
+    model = OrderItem
+    fields = ("product", "quantity", "price")
+    per_page = 50  # Number of inline rows per page (default: 50)
+```
+
+A generic variant `SBAdminGenericTableInlinePaginated` is also available for models using `GenericForeignKey`.
+
 ### Manage related objects that use GenericForeignKey
 `SBAdminGenericTableInline` and `SBAdminGenericStackedInline` are same as SBAdminTableInline and SBAdminStackedInline, but Generic inlines allow you to manage related objects that use GenericForeignKey.

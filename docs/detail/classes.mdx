@@ -1,36 +1,66 @@
 ---
-title: Fieldset Layout Classes
+title: Detail View Customization
 sidebar_position: 1
 ---
 import Tabs from '@theme/Tabs';
 import TabItem from '@theme/TabItem';
 
+## Previous / Next Navigation
+
+Enable previous/next navigation buttons on the detail (change) page to quickly move between records without returning to the list view.
+
+```python title="catalog/sb_admin.py"
+@admin.register(Product, site=sb_admin_site)
+class ProductSBAdmin(SBAdmin):
+    model = Product
+    sbadmin_previous_next_buttons_enabled = True  # Show prev/next buttons on detail page
+```
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `sbadmin_previous_next_buttons_enabled` | bool | `False` | When `True`, previous and next navigation buttons appear on the detail/change page. The ordering respects the current list view's sort and filter state. |
+
+---
+
 ### Fieldset Layout Classes
 SmartBase Admin supports additional customization of fieldset layout in detail views using the classes option.
 
-Django SmatBase Admin currently supports one class: `DETAIL_STRUCTURE_RIGHT_CLASS`.
+Django SmartBase Admin currently supports two layout classes:
 
-This class aligns the given fieldset to the right panel in the detail view layout (which typically has two columns: left and right).
-It is useful for grouping meta fields, status fields, or supplementary info away from the main form content.
+| Class | Import | Description |
+|-------|--------|-------------|
+| `DETAIL_STRUCTURE_RIGHT_CLASS` | `from django_smartbase_admin.engine.const import DETAIL_STRUCTURE_RIGHT_CLASS` | Aligns the fieldset to the right panel in the detail view layout (two-column: left and right). Useful for grouping meta fields, status fields, or supplementary info. |
+| `FIELDSET_HIDE_HEADER_CLASS` | `from django_smartbase_admin.engine.const import FIELDSET_HIDE_HEADER_CLASS` | Hides the fieldset header (title). Useful when you want to group fields without showing a section label. |
 
 ## 💡Example: Defining class for `Base setting` fieldset
 <Tabs groupId="2">
 <TabItem value="code" label="Code">
 
 ```python title="catalog/sb_admin.py"
+from django_smartbase_admin.engine.const import DETAIL_STRUCTURE_RIGHT_CLASS, FIELDSET_HIDE_HEADER_CLASS
+
 @admin.register(Product, site=sb_admin_site)
 class ProductSBAdmin(SBAdmin):
     fieldsets = [
         (
             "Base settings",
             {
-                "classes": [DETAIL_STRUCTURE_RIGHT_CLASS], # Fieldset Layout class
+                "classes": [DETAIL_STRUCTURE_RIGHT_CLASS],  # Aligns to right panel
                 "fields": [
                     "is_active",
                     "slug",
                     "sku",
                     "categories",
                     "manufacturer",
+                ],
+            },
+        ),
+        (
+            "Hidden header section",
+            {
+                "classes": [FIELDSET_HIDE_HEADER_CLASS],  # Hides the fieldset title
+                "fields": [
+                    "description",
                 ],
             },
         ),

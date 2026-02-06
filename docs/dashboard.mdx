@@ -67,12 +67,17 @@ This widget shows a paginated table of the latest purchases.
 <TabItem value="code" label="Code">
 ```python title="sb_admin_configuration.py"
 from django_smartbase_admin.engine.dashboard import SBAdminDashboardListWidget
+from django_smartbase_admin.engine.field import SBAdminField
 
 class PurchaseDashboardListWidget(SBAdminDashboardListWidget):
     ordering = ["-created_at"]
     name = "Latest Purchases"
     model = Purchase
-    list_display = ["created_at", "customer_name", "total_price"]
+    sbadmin_list_display = [
+        "created_at",
+        "customer_name",
+        SBAdminField(name="total_price", title="Total Price"),
+    ]
     list_per_page = 10
 ```
 </TabItem>
