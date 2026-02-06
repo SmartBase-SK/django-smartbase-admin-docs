@@ -35,20 +35,25 @@ Define your model with django-parler's `TranslatedFields`:
 
 ```python title="catalog/models.py"
 from django.db import models
+from django.utils.translation import gettext_lazy as _
 from parler.models import TranslatableModel, TranslatedFields
 
 
-class Product(TranslatableModel):
-    sku = models.CharField(max_length=50)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-
+class Article(TranslatableModel):
     translations = TranslatedFields(
-        name=models.CharField(max_length=200),
-        description=models.TextField(blank=True),
+        title=models.CharField(_("Title"), max_length=200),
+        body=models.TextField(_("Body"), blank=True),
     )
+    slug = models.SlugField(unique=True)
+    is_published = models.BooleanField(default=False, verbose_name=_("Published"))
+    created = models.DateTimeField(auto_now_add=True, verbose_name=_("Created"))
+
+    class Meta:
+        verbose_name = _("Article")
+        verbose_name_plural = _("Articles")
 
     def __str__(self):
-        return self.safe_translation_getter("name", any_language=True) or self.sku
+        return self.safe_translation_getter("title", any_language=True) or f"Article {self.pk}"
 ```
 
 ---
@@ -61,21 +66,53 @@ Use `SBTranslatableAdmin` instead of `SBAdmin` for translatable models. This aut
 
 ```python title="catalog/sb_admin.py"
 from django.contrib import admin
+from django.utils.translation import gettext_lazy as _
 
 from django_smartbase_admin.admin.admin_base import SBTranslatableAdmin
 from django_smartbase_admin.admin.site import sb_admin_site
+from django_smartbase_admin.engine.const import DETAIL_STRUCTURE_RIGHT_CLASS
+from django_smartbase_admin.engine.field import SBAdminField
 
-from catalog.models import Product
+from catalog.models import Article
 
 
-@admin.register(Product, site=sb_admin_site)
-class ProductSBAdmin(SBTranslatableAdmin):
-    model = Product
-    sbadmin_list_display = ("name", "sku", "price")
+@admin.register(Article, site=sb_admin_site)
+class ArticleSBAdmin(SBTranslatableAdmin):
+    model = Article
+    sbadmin_list_display = (
+        "title",
+        "slug",
+        SBAdminField(name="is_published", title=_("Published")),
+        SBAdminField(name="created", title=_("Created")),
+    )
+    list_filter = ["is_published"]
+    search_fields = ["translations__title", "slug"]
     fieldsets = [
-        (None, {"fields": ["name", "description", "sku", "price"]}),
+        (
+            None,
+            {
+                "fields": [
+                    "title",
+                    "body",
+                ],
+            },
+        ),
+        (
+            _("Settings"),
+            {
+                "classes": [DETAIL_STRUCTURE_RIGHT_CLASS],
+                "fields": [
+                    "slug",
+                    "is_published",
+                ],
+            },
+        ),
     ]
 ```
+
+:::tip
+Note how `search_fields` uses `translations__title` to search translated fields — this is the django-parler convention for querying translated content.
+:::
 
 :::warning
 If you use a custom form class with `SBTranslatableAdmin`, it **must** extend `SBTranslatableModelForm`:
@@ -83,9 +120,9 @@ If you use a custom form class with `SBTranslatableAdmin`, it **must** extend `S
 ```python
 from django_smartbase_admin.admin.admin_base import SBTranslatableModelForm
 
-class ProductForm(SBTranslatableModelForm):
+class ArticleForm(SBTranslatableModelForm):
     class Meta:
-        model = Product
+        model = Article
         fields = "__all__"
 ```
 
@@ -98,6 +135,8 @@ Using a form that does not extend `SBTranslatableModelForm` will raise an `Impro
 
 Register `SBAdminTranslationsView` in your configuration to provide a centralized interface for managing translations across multiple models.
 
+![Translations view](/img/screenshots/trans.png)
+
 ```python title="sb_admin_configuration.py"
 from django.conf import settings
 
@@ -108,9 +147,16 @@ from django_smartbase_admin.views.translations_view import SBAdminTranslationsVi
 
 
 menu_items = [
-    SBAdminMenuItem(label="Dashboard", icon="All-application", view_id="dashboard"),
-    SBAdminMenuItem(label="Products", icon="Ad-product", view_id="catalog_product"),
-    SBAdminMenuItem(label="Categories", icon="List-checkbox", view_id="catalog_category"),
+    SBAdminMenuItem(view_id="dashboard", icon="All-application"),
+    SBAdminMenuItem(
+        label="Catalog",
+        icon="Box",
+        sub_items=[
+            SBAdminMenuItem(view_id="catalog_product", label="Products"),
+            SBAdminMenuItem(view_id="catalog_category", label="Categories"),
+            SBAdminMenuItem(view_id="catalog_article", label="Articles"),
+        ],
+    ),
 ]
 
 registered_views = [
@@ -126,20 +172,12 @@ if len(settings.LANGUAGES) > 1:
         SBAdminTranslationsView(
             translations_definition=[
                 {
-                    "model_path": "catalog.Product",
+                    "model_path": "catalog.Article",
                     "icon": {
                         "path": "#Ad-product",
                         "class": "bg-success-100 text-success-800",
                     },
-                    "fields": ["name", "description"],  # Only these fields will be translatable
-                },
-                {
-                    "model_path": "catalog.Category",
-                    "icon": {
-                        "path": "#List-checkbox",
-                        "class": "bg-warning-100 text-warning-800",
-                    },
-                    "fields": ["name"],
+                    "fields": ["title", "body"],  # Only these fields will be translatable
                 },
             ]
         )
@@ -166,7 +204,7 @@ Each entry in the `translations_definition` list configures a translatable model
 
 | Key | Type | Required | Description |
 |-----|------|----------|-------------|
-| `model_path` | str | ✅ | Dot-separated path to the model (e.g., `"catalog.Product"`) |
+| `model_path` | str | ✅ | Dot-separated path to the model (e.g., `"catalog.Article"`) |
 | `fields` | list[str] | No | List of field names to include in the translation view. If omitted, all translated fields are shown |
 | `icon` | dict | No | Icon configuration with `path` (SVG sprite reference like `"#Ad-product"`) and `class` (CSS classes for styling) |
 | `view_class` | class | No | Custom view class (must extend `ModelTranslationView`). Defaults to `ModelTranslationView` |
@@ -177,6 +215,8 @@ Each entry in the `translations_definition` list configures a translatable model
 ## 📋 Translation Status on Detail Page
 
 When using `SBTranslatableAdmin`, a **Translations** fieldset is automatically appended to the detail page. It displays the translation status for each configured language:
+
+![Translatable model detail view with languages widget](/img/screenshots/trans_detail.png)
 
 | Status | Icon | Meaning |
 |--------|------|---------|
@@ -197,8 +237,7 @@ LANGUAGE_CODE = "en"  # Main (source) language
 
 LANGUAGES = [
     ("en", "English"),
-    ("de", "German"),
-    ("fr", "French"),
+    ("sk", "Slovak"),
 ]
 ```
 
