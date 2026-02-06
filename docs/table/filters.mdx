@@ -91,3 +91,40 @@ class PurchaseSBAdmin(SBAdmin):
     ...
 
 ```
+
+### 🔍 Search Field Placeholder
+
+When using Advanced Filters (`FILTERS_VERSION_2`), customize the placeholder text shown in the search input. By default it displays `"Search..."`.
+
+| Attribute | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `search_field_placeholder` | str | `_("Search...")` | Placeholder text displayed in the search input field |
+
+Override the attribute directly or use the `get_search_field_placeholder(request)` method for dynamic text:
+
+```python title="catalog/sb_admin.py"
+from django.utils.translation import gettext_lazy as _
+
+@admin.register(Product, site=sb_admin_site)
+class ProductSBAdmin(SBAdmin):
+    model = Product
+    filters_version = FilterVersions.FILTERS_VERSION_2
+    search_fields = ("name", "sku", "manufacturer__name")
+    search_field_placeholder = _("Search by name, SKU or manufacturer...")
+```
+
+For dynamic placeholder text, override the method:
+
+```python title="catalog/sb_admin.py"
+@admin.register(Product, site=sb_admin_site)
+class ProductSBAdmin(SBAdmin):
+    model = Product
+    filters_version = FilterVersions.FILTERS_VERSION_2
+    search_fields = ("name", "sku")
+
+    def get_search_field_placeholder(self, request):
+        """Show different placeholder based on user role."""
+        if request.user.is_superuser:
+            return _("Search all products...")
+        return _("Search your products...")
+```
