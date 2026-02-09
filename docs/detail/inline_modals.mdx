@@ -15,6 +15,10 @@ class ProductImageInline(SBAdminTableInline):
     ...
     sb_admin_add_modal = True
 ```
-The “Add” button will open a modal dialog instead of inserting a blank row. This allows users to create a related object using a full form layout with validation, without leaving the current context.
+The "Add" button will open a modal dialog instead of inserting a blank row. This allows users to create a related object using a full form layout with validation, without leaving the current context.
+
+:::warning
+The inline's model must have its own `SBAdmin` view registered with `sb_admin_site`. The modal uses the registered admin's change form to render the creation dialog. Without a registered admin, the modal URL cannot be resolved and will result in a `NoReverseMatch` error.
+:::
 
 ![Related_buttons sbadmin](/img/screenshots/inline_modal.png)

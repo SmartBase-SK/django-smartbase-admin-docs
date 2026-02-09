@@ -106,3 +106,21 @@ Each action is mapped to a method in your admin (via `action_id`).
 - A dropdown with multiple actions (via `sub_actions`)
 - An optional icon ([🔗 Available icons](https://github.com/SmartBase-SK/django-smartbase-admin/tree/main/src/django_smartbase_admin/static/sb_admin/sprites/sb_admin)).
 - You can set to open an actions links in the new tab (via `open_in_new_tab = True` parameter)
+- A custom template for rendering the action button (via `template` parameter)
+
+### SBAdminCustomAction Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `title` | str | **Required** | Button label |
+| `view` | SBAdmin | `None` | The admin view instance (required with `action_id`) |
+| `action_id` | str | `None` | Method name on the view to call (required with `view`) |
+| `url` | str | `None` | Direct URL (alternative to `view` + `action_id`) |
+| `action_modifier` | str | `None` | Additional modifier passed to the action URL |
+| `icon` | str | `None` | Icon name for the button |
+| `css_class` | str | `None` | Additional CSS class for the button |
+| `sub_actions` | list | `None` | List of `SBAdminCustomAction` for dropdown menus |
+| `open_in_modal` | bool | `False` | Open the action in a modal dialog |
+| `open_in_new_tab` | bool | `False` | Open the action link in a new browser tab |
+| `no_params` | bool | `False` | If `True`, don't pass table params to the action URL |
+| `template` | str | `"sb_admin/actions/partials/action_link.html"` | Custom template for rendering the action button. Override to fully customize the button's HTML structure. |

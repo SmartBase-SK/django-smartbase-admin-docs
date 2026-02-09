@@ -15,6 +15,14 @@ You can enable inline editing directly in the list view using Tabulator editors.
 ### 💡 Example: Making List Columns Editable
 
 ```python title="catalog/sb_admin.py"
+import json
+
+from django.contrib import messages
+from django.http import HttpResponse
+
+from django_smartbase_admin.utils import render_notifications
+
+
 @admin.register(EditableListModel, site=sb_admin_site)
 class EditableListModelSBAdmin(SBAdmin):
     model = EditableListModel

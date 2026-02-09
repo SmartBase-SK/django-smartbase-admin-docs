@@ -76,7 +76,6 @@ class CategorySBAdmin(SBAdmin):
     sbadmin_list_display_data = ["depth", "path"]
     sbadmin_list_reorder_field = "path"
     ordering = ["path"]
-    use_tree_ordering = True
 
     def get_extra_context(self, request, extra_context=None):
         extra_context = extra_context or {}
@@ -145,7 +144,6 @@ class CategoryTreeFilterWidget(CategoryTreeWidget, SBAdminTreeFilterWidget):
 Use the custom widget in a SBAdminField in your admin class to enable tree-based filtering:
 
 ```python title="catalog/sb_admin.py"
-python title="catalog/sb_admin.py"
 @admin.register(Product, site=sb_admin_site)
 class ProductSBAdmin(SBAdmin):
     model = Product

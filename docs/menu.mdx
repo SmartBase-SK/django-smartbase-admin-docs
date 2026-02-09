@@ -31,7 +31,44 @@ Each `SBAdminMenuItem` accepts the following key parameters:
 - `view_id`: Unique identifier of the view this item links to.
 - `icon` (optional): The icon name from [🔗 Available icons](https://github.com/SmartBase-SK/django-smartbase-admin/tree/main/src/django_smartbase_admin/static/sb_admin/sprites/sb_admin).
 - `label` (optional): Overrides the default label.
+- `url` (optional): Custom URL for the menu item. Can be a string or a callable `(request) -> str`. When provided, this URL is used instead of the auto-generated URL from `view_id`. Useful for linking to external pages or custom views not registered in SBAdmin.
 - `sub_items` (optional): A list of nested SBAdminMenuItem objects, supporting menu nesting.
+
+```python title="sb_admin_configuration.py"
+# Link to an external URL
+SBAdminMenuItem(label="Documentation", icon="Help", url="https://docs.example.com")
+
+# Dynamic URL based on request
+SBAdminMenuItem(label="Profile", icon="User-business", url=lambda request: f"/users/{request.user.pk}/")
+```
+
+## SBAdminRoleConfiguration Parameters
+
+| Parameter | Type | Default | Description |
+|-----------|------|---------|-------------|
+| `default_view` | SBAdminMenuItem | `None` | The default view shown after login |
+| `menu_items` | list | `[]` | List of `SBAdminMenuItem` instances for the sidebar menu |
+| `registered_views` | list | `[]` | Additional views to register (e.g., `SBAdminDashboardView`) |
+| `global_filter_form` | Form class | `None` | Django form class for global sidebar filters |
+| `filters_version` | FilterVersions | `FILTERS_VERSION_1` | Filter UI version — use `FilterVersions.FILTERS_VERSION_2` for advanced filters |
+| `default_color_scheme` | ColorScheme | `ColorScheme.AUTO` | Default color scheme (`ColorScheme.AUTO`, `ColorScheme.LIGHT`, or `ColorScheme.DARK`) |
+| `login_view_class` | View class | `LoginView` | Custom login view class |
+| `admin_title` | str | `"SBAdmin"` | Title displayed in the admin header |
+
+```python title="sb_admin_configuration.py"
+from django_smartbase_admin.engine.configuration import SBAdminRoleConfiguration
+from django_smartbase_admin.engine.const import FilterVersions
+from django_smartbase_admin.models import ColorScheme
+
+config = SBAdminRoleConfiguration(
+    default_view=SBAdminMenuItem(view_id="dashboard"),
+    menu_items=[...],
+    registered_views=[...],
+    default_color_scheme=ColorScheme.LIGHT,
+    admin_title="My Admin",
+    filters_version=FilterVersions.FILTERS_VERSION_2,
+)
+```
 
 ## Role-Based Menu Configuration
 You can define different menus for different user roles by extending SBAdminRoleConfiguration and using get_configuration_for_roles in your SBAdminConfiguration.
