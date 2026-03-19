@@ -29,7 +29,7 @@ config = SBAdminRoleConfiguration(
 Each `SBAdminMenuItem` accepts the following key parameters:
 
 - `view_id`: Unique identifier of the view this item links to.
-- `icon` (optional): The icon name from [🔗 Available icons](https://github.com/SmartBase-SK/django-smartbase-admin/tree/main/src/django_smartbase_admin/static/sb_admin/sprites/sb_admin).
+- `icon` (optional): The icon name from [Available icons](./icons).
 - `label` (optional): Overrides the default label.
 - `url` (optional): Custom URL for the menu item. Can be a string or a callable `(request) -> str`. When provided, this URL is used instead of the auto-generated URL from `view_id`. Useful for linking to external pages or custom views not registered in SBAdmin.
 - `sub_items` (optional): A list of nested SBAdminMenuItem objects, supporting menu nesting.

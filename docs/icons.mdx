@@ -1,0 +1,21 @@
+---
+sidebar_position: 4
+---
+import IconCatalog from '@site/src/components/IconCatalog';
+
+# Icons
+
+Use the exact icon name as the value of the `icon` parameter.
+
+```python
+SBAdminMenuItem(view_id="dashboard", icon="All-application")
+SBAdminCustomAction(title="Export to XLSX", icon="Excel-one", ...)
+```
+
+Icon names now match the SVG filename without the `.svg` extension, so use the exact kebab-cased value shown in the catalog, for example `Pin-filled`, `Sort-alt`, or `Application-filled`.
+
+## Browse Icons
+
+The catalog below reflects the current sprite directory, lets you filter icons by name, and previews each one directly.
+
+<IconCatalog />
