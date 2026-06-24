@@ -1,0 +1,345 @@
+---
+title: Messaging
+sidebar_position: 9
+---
+
+# ✉️ Messaging
+
+SmartBase Admin ships an optional **messaging** feature that lets admins author messages and deliver them to a set of users inside the admin. It provides:
+
+- A **management view** for authoring messages (title, rich-text content, attachments) and picking recipients
+- A **per-user inbox** where each user reads the messages addressed to them, with an **unread badge** on the menu
+- **Real-time notifications** — new messages surface automatically as a **toast** or a **modal** (with optional acknowledge), driven by a background poller
+- Configurable **message types** and pluggable **audiences** (target individual users, Django groups, all users, or your own custom model)
+
+:::info Prerequisites
+- `ckeditor` / `ckeditor_uploader` must be installed (message content is a `RichTextField`) — they are part of the standard SmartBase Admin [installation](/docs/installation).
+- The feature is disabled until you attach a `messaging_config` to your `SBAdminRoleConfiguration`.
+:::
+
+---
+
+## 🛠️ How It Works
+
+1. **`django_smartbase_admin.messaging`** is a self-contained Django app. When added to `INSTALLED_APPS`, it registers two admins with the SmartBase site automatically — there is no `sb_admin.py` to write:
+   - `Message` → the authoring / "Sent" management view (`view_id="sb_admin_messaging_message"`), gated by Django model permissions.
+   - `MessageRecipient` → the per-user inbox (`view_id="sb_admin_messaging_messagerecipient"`), visible to any authenticated user and scoped to their own rows.
+2. **`SBAdminMessagingConfig`** declares the available `message_types` and `audiences`. Attaching it to your role configuration's `messaging_config` attribute **enables the feature**; leaving it `None` disables it.
+3. On save, the management view resolves the chosen audiences into a set of users and creates a `MessageRecipient` row per user (the source of truth for *who receives* and *who has read* a message).
+4. A **notification poller** is injected into the admin base template automatically. It periodically asks for pending messages and renders any new ones as toasts/modals — no template changes required.
+
+---
+
+## 💡 Example #1: Enable Messaging
+
+Add the app to `INSTALLED_APPS`, run migrations, then attach a config.
+
+```python title="settings.py"
+INSTALLED_APPS = [
+    # other apps
+    "django_smartbase_admin",
+    "django_smartbase_admin.messaging",
+    "ckeditor",
+    "ckeditor_uploader",
+]
+```
+
+```bash
+python manage.py migrate
+```
+
+Attach an `SBAdminMessagingConfig` to your role configuration. With no arguments it uses sensible defaults — an **Info** (toast) and a **Warning** (modal) message type, and the built-in **Users / User groups / All users** audiences.
+
+```python title="config/sbadmin_config.py"
+from django_smartbase_admin.engine.configuration import (
+    SBAdminConfigurationBase,
+    SBAdminRoleConfiguration,
+)
+from django_smartbase_admin.engine.menu_item import SBAdminMenuItem
+from django_smartbase_admin.messaging.config import SBAdminMessagingConfig
+from django_smartbase_admin.messaging.services import SBAdminMessagingService
+
+
+config = SBAdminRoleConfiguration(
+    default_view=SBAdminMenuItem(view_id="dashboard"),
+    messaging_config=SBAdminMessagingConfig(),  # ← enables messaging with defaults
+    menu_items=[
+        SBAdminMenuItem(view_id="dashboard", icon="All-application"),
+        # Inbox with an unread-message badge
+        SBAdminMenuItem(
+            view_id="sb_admin_messaging_messagerecipient",
+            label="My messages",
+            icon="Mail",
+            badge=SBAdminMessagingService.get_unread_count,
+        ),
+        # Authoring / "Sent" view — show only to users who may send messages
+        SBAdminMenuItem(view_id="sb_admin_messaging_message", label="Sent"),
+    ],
+    registered_views=[...],  # Your views
+)
+
+
+class SBAdminConfiguration(SBAdminConfigurationBase):
+    def get_configuration_for_roles(self, user_roles):
+        return config
+```
+
+:::tip Unread badge
+`SBAdminMessagingService.get_unread_count` is designed to be passed straight to a menu item's `badge` argument. It returns the current user's unread count (and `0` — no badge — when messaging is disabled or the user is anonymous).
+:::
+
+:::note Who can send?
+The inbox (`sb_admin_messaging_messagerecipient`) is available to every authenticated user. The authoring view (`sb_admin_messaging_message`) is gated by Django's model **add** permission on `Message`, so only users with that permission see the **New message** button.
+:::
+
+---
+
+## 💡 Example #2: Custom Message Types
+
+A **message type** controls how a message is surfaced. `NotificationStyle.TOAST` shows a dismissible toast; `NotificationStyle.MODAL` shows a modal that — when `require_acknowledge=True` — cannot be dismissed by clicking the backdrop and is only marked read once the user clicks **Acknowledge**.
+
+```python title="config/sbadmin_config.py"
+from django.utils.translation import gettext_lazy as _
+
+from django_smartbase_admin.messaging.config import (
+    NotificationStyle,
+    SBAdminMessageType,
+    SBAdminMessagingConfig,
+)
+
+messaging_config = SBAdminMessagingConfig(
+    message_types=[
+        SBAdminMessageType(
+            key="info",
+            label=_("Info"),
+            notification_style=NotificationStyle.TOAST,
+            icon="Info",        # SVG sprite id from the sb_admin icon sprite
+            color="notice",     # alert/modal colour token
+        ),
+        SBAdminMessageType(
+            key="warning",
+            label=_("Warning"),
+            notification_style=NotificationStyle.MODAL,
+            icon="Attention",
+            color="warning",
+            require_acknowledge=True,  # user must click "Acknowledge"
+        ),
+        SBAdminMessageType(
+            key="surcharge",
+            label=_("Surcharge"),
+            notification_style=NotificationStyle.MODAL,
+            icon="Euro-outlined",
+            color="primary",
+            require_acknowledge=True,
+        ),
+    ],
+)
+```
+
+The author picks one of these types when writing a message; its badge (colour + label) is shown in both the management list and the inbox.
+
+:::info Notification behavior
+The poller shows **at most one modal per poll** — additional modals queue and surface on later polls. **Toasts wait behind modals**: while any modal is pending for a user, their toasts are held back so the modal is seen first. The poll cadence is controlled by `poll_interval_seconds` (default `60`).
+:::
+
+---
+
+## 💡 Example #3: Audiences
+
+An **audience** is a pluggable recipient source. Each audience contributes one field to the message form, serializes the selection into the message's `targeting` blob, and resolves that blob back into a user queryset when recipients are synced.
+
+Three audiences are built in:
+
+| Audience | Form field | Targets |
+|----------|-----------|---------|
+| `UsersAudience` | Autocomplete multi-select of users | The explicitly selected users |
+| `GroupsAudience` | Multi-select of Django groups | Every user in the selected groups |
+| `AllUsersAudience` | A checkbox | All active users (no per-message selection) |
+
+```python title="config/sbadmin_config.py"
+from django_smartbase_admin.messaging.config import (
+    AllUsersAudience,
+    GroupsAudience,
+    SBAdminMessagingConfig,
+    UsersAudience,
+)
+
+messaging_config = SBAdminMessagingConfig(
+    audiences=[UsersAudience(), GroupsAudience(), AllUsersAudience()],
+)
+```
+
+### Custom audience
+
+To target your own model, subclass `SBAdminMessageAudience` and implement the form field, (de)serialization, and user resolution. The example below targets users of a shipper at a given pricing tier:
+
+```python title="myapp/messaging.py"
+from django.utils.translation import gettext_lazy as _
+from django_smartbase_admin.messaging.config import SBAdminMessageAudience
+
+_PREMIUM = "premium"
+_BASIC = "basic"
+
+
+class ShipperTierAudience(SBAdminMessageAudience):
+    key = "shippers"
+    label = _("Users by shipper")
+
+    def get_form_field(self, request):
+        from django import forms
+        from django_smartbase_admin.admin.widgets import (
+            SBAdminMultipleChoiceSearchableWidget,
+        )
+
+        return forms.MultipleChoiceField(
+            choices=self._build_choices(),
+            required=False,
+            label=self.label,
+            widget=SBAdminMultipleChoiceSearchableWidget,
+        )
+
+    @staticmethod
+    def _build_choices():
+        from myapp.carriers.models import Shipper
+
+        choices = []
+        for shipper in Shipper.objects.all().order_by("name"):
+            choices.append((f"{_PREMIUM}:{shipper.pk}", f"{shipper.name} – Premium"))
+            choices.append((f"{_BASIC}:{shipper.pk}", f"{shipper.name} – Basic"))
+        return choices
+
+    def serialize(self, cleaned_value):
+        # Must return a JSON-serializable value (stored in Message.targeting)
+        return list(cleaned_value) if cleaned_value else []
+
+    def resolve_users(self, stored_value, request):
+        from django.contrib.auth import get_user_model
+        from myapp.accounts.models import UserShipperPriceList
+
+        user_model = get_user_model()
+        if not stored_value:
+            return user_model.objects.none()
+
+        user_ids = set()
+        for token in stored_value:
+            tier, _sep, shipper_id = str(token).partition(":")
+            if not shipper_id:
+                continue
+            user_ids.update(
+                UserShipperPriceList.objects.user_ids_for_shipper_tier(
+                    shipper_id, fix=(tier == _BASIC)
+                )
+            )
+        return user_model.objects.filter(pk__in=user_ids)
+```
+
+Register it alongside (or instead of) the built-ins:
+
+```python title="config/sbadmin_config.py"
+from django_smartbase_admin.messaging.config import (
+    AllUsersAudience,
+    SBAdminMessagingConfig,
+    UsersAudience,
+)
+from myapp.messaging import ShipperTierAudience
+
+messaging_config = SBAdminMessagingConfig(
+    audiences=[UsersAudience(), ShipperTierAudience(), AllUsersAudience()],
+)
+```
+
+:::tip
+Recipients are resolved **once, at creation**. A created message is immutable — editing it never recomputes targeting. Re-syncing preserves read history: it never removes a recipient who has already read the message.
+:::
+
+---
+
+## 💡 Example #4: A Cleaner Inbox / Sent Menu
+
+For a richer layout, group the inbox and the authoring view under one **Messages** menu item:
+
+```python title="config/sbadmin_config.py"
+from django_smartbase_admin.engine.menu_item import SBAdminMenuItem
+from django_smartbase_admin.messaging.services import SBAdminMessagingService
+
+messages_menu = SBAdminMenuItem(
+    label="Messages",
+    icon="Mail",
+    sub_items=[
+        SBAdminMenuItem(
+            view_id="sb_admin_messaging_messagerecipient",
+            label="Received",
+            badge=SBAdminMessagingService.get_unread_count,
+        ),
+        SBAdminMenuItem(
+            view_id="sb_admin_messaging_message",
+            label="Sent",
+        ),
+    ],
+)
+```
+
+---
+
+## 📎 Attachment Storage
+
+Message attachments default to the `messaging/attachments/` directory on your project's default storage. Both the upload path and the storage backend can be repointed via settings — **without generating a migration**, since only the runtime result changes, not the field definition.
+
+```python title="settings.py"
+# Store attachments at the root of a dedicated storage backend
+STORAGES = {
+    # ... default / staticfiles ...
+    "message_attachments": {
+        "BACKEND": "django.core.files.storage.FileSystemStorage",
+        "OPTIONS": {
+            "location": MEDIA_ROOT / "message-attachments",
+            "base_url": MEDIA_URL + "message-attachments/",
+        },
+    },
+}
+
+# Key into STORAGES, a Storage instance, or a callable returning one
+SB_ADMIN_MESSAGING_ATTACHMENT_STORAGE = "message_attachments"
+# A path prefix, "" for the storage root, or a (instance, filename) -> path callable
+SB_ADMIN_MESSAGING_ATTACHMENT_UPLOAD_TO = ""
+```
+
+---
+
+## 📖 SBAdminMessagingConfig Reference
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `message_types` | list[`SBAdminMessageType`] | Info + Warning | Available message types and how each is delivered |
+| `audiences` | list[`SBAdminMessageAudience`] | Users, Groups, All users | Recipient sources offered on the message form |
+| `poll_interval_seconds` | int | `60` | How often the notification poller checks for new messages |
+| `scope_by_author` | bool | `False` | When `True`, the "Sent" view lists only messages authored by the current user |
+
+### SBAdminMessageType
+
+| Argument | Type | Default | Description |
+|----------|------|---------|-------------|
+| `key` | str | — | Stable identifier stored on the message |
+| `label` | str | — | Human-readable name (used as the badge label) |
+| `notification_style` | `NotificationStyle` | `TOAST` | `TOAST` or `MODAL` |
+| `icon` | str | `None` | SVG sprite id (e.g. `"Info"`, `"Attention"`) |
+| `color` | str | `"notice"` | Colour token (e.g. `"notice"`, `"warning"`, `"negative"`, `"success"`, `"primary"`) |
+| `require_acknowledge` | bool | `False` | Modal only — require an explicit **Acknowledge** click before marking read |
+
+### SBAdminMessageAudience
+
+Subclass and set `key` / `label`, then override:
+
+| Method | Required | Description |
+|--------|----------|-------------|
+| `get_form_field(request)` | No | The `forms.Field` for selecting within this audience. Return `None` for audiences with no per-message selection (e.g. "all users") |
+| `serialize(cleaned_value)` | No | Convert the cleaned form value into a JSON-serializable value stored in `Message.targeting` |
+| `get_initial(stored_value)` | No | Convert a stored targeting value back into a form-field initial (for re-edit) |
+| `resolve_users(stored_value, request)` | ✅ | Return a queryset/iterable of users for a stored targeting value |
+
+### SBAdminMessagingService
+
+| Method | Description |
+|--------|-------------|
+| `get_unread_count(request)` | Current user's unread count — pass directly to a menu item `badge` |
+| `get_messaging_config(request)` | The active `SBAdminMessagingConfig`, or `None` when disabled |
